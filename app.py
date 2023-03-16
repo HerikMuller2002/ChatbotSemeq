@@ -8,7 +8,6 @@ app = Flask(__name__)
 # liberando acesso para origem especifica
 cors = CORS(app, resources={r"/test": {"origins": "http://localhost:5500/"}})
 
-
 @app.route('/test', methods=['POST'])
 @cross_origin(origin='localhost',headers=['Content- Type','Authorization'])
 def index():

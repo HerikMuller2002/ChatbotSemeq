@@ -1,10 +1,5 @@
-while True:
-    try: 
-        import os
-        import json
-        break
-    except ModuleNotFoundError:
-        continue
+import os
+import json
 
 class Log_chat:
 

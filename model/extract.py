@@ -4,6 +4,7 @@ import pickle
 import nltk
 import os
 from nltk.stem import WordNetLemmatizer
+
 lemmatizer = WordNetLemmatizer()
 
 models_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "model"))
