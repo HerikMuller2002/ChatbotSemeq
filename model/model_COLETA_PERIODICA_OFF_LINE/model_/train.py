@@ -4,7 +4,6 @@ import nltk
 import random
 import numpy as np
 import os
-from preprocess import Tratamento
 from nltk.stem import WordNetLemmatizer
 from keras.models import Sequential
 from keras.layers import Dense, Activation, Dropout
@@ -16,6 +15,10 @@ lemmatizer = WordNetLemmatizer()
 
 ######################################################################
 
+# inicializaremos nossa lista de palavras, classes, documentos e 
+# definimos quais palavras serão ignoradas
+words = []
+documents = []
 # abrindo o "banco de dados" temporario em json
 db_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "database"))
 json_path = os.path.join(db_path, "intents.json")
@@ -52,10 +55,6 @@ for intent in intents['intents']:
 
 # lematizamos as palavras ignorando os palavras da lista ignore_words
 words = [lemmatizer.lemmatize(w.lower()) for w in words if w not in ignore_words]
-
-
-words,documents = Tratamento.preprocess(intents)
-
 
 ################################################################################################################
 #--------------------------------------------------------------------------------------------------------------#

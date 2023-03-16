@@ -6,26 +6,34 @@ from nltk import download
 from nltk import word_tokenize
 from sklearn.feature_extraction.text import TfidfVectorizer # pip install scikit-learn
 from sklearn.metrics.pairwise import cosine_similarity
-
+from nltk.stem import WordNetLemmatizer
 
 class Tratamento:
     # Função para pré-processar os textos para calculo de correlação
-    def preprocess(text,lematizar=True):
+    def preprocess(intents,lematizar=True):
+        lemmatizer = WordNetLemmatizer()
+        # inicializaremos nossa lista de palavras, classes, documentos e 
+        # definimos quais palavras serão ignoradas
+        words = []
+        documents = []
         download('punkt')
         nlp = load("pt_core_news_sm") # python -m spacy download pt_core_news_sm => erro de linguagem
-        text = text.lower()
+        for intent in intents['intents']:
+            for pattern in intent['patterns']:
+                word = pattern.lower()
+                word = sub(r"[!#$%&'()*+,-./:;<=>?@[^_`{|}~]+", ' ', sub('[áàãâä]', 'a', sub('[éèêë]', 'e', sub('[íìîï]', 'i', sub('[óòõôö]', 'o', sub('[úùûü]', 'u', word))))))
+                # tirar espaços em branco
+                word = sub(r'\s+', ' ',word)
+                # com ajuda no nltk fazemos aqui a tokenizaçao dos patterns 
+                # e adicionamos na lista de palavras
+                word = word_tokenize(word)
+                words.extend(word)
+                # adiciona aos documentos para identificarmos a tag para a mesma
+                documents.append((word, intent['tag']))
         if lematizar:
-            # encontrar radical das palavras (lematização)
-            documento = nlp(text)
-            text = []
-            for token in documento:
-                text.append(token.lemma_)
-            text = ' '.join(text)
+            words = [lemmatizer.lemmatize(w.lower()) for w in words if w not in ignore_words]
         # tirar pontuações, acentos e espaços extras
-        text = sub(r"[!#$%&'()*+,-./:;<=>?@[^_`{|}~]+", ' ', sub('[áàãâä]', 'a', sub('[éèêë]', 'e', sub('[íìîï]', 'i', sub('[óòõôö]', 'o', sub('[úùûü]', 'u', text))))))
-        # tirar espaços em branco
-        text = sub(r'\s+', ' ',text)
-        return text.strip()
+        return word.strip()
     
     def get_values_vetor(lista,similaridade):
         # Filtra a lista para manter apenas os valores acima de 40% de relação
