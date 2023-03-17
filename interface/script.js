@@ -103,6 +103,7 @@ async function addMessage() {
                         chatInput.style.opacity = "1"
                         chatInput.style.pointerEvents = "all"
                         chatInput.style.cursor = "text"
+                        message.focus()
                     }, 1200)
                 }
             }, 50 * index)
