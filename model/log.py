@@ -2,12 +2,11 @@ import os
 import json
 
 class Log_chat:
-
-    def __init__(self,intent,input_user,response,list_responses,id_response):
-        self.intent = intent
+    def __init__(self,intent_user,input_user,response,list_response,id_response):
+        self.intent = intent_user
         self.input_user = input_user
         self.response = response
-        self.list_responses = list_responses
+        self.list_responses = list_response
         self.id_response = id_response
         logs_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "logs"))
         self.log_path = os.path.join(logs_path, "log_chat.json")

@@ -12,7 +12,6 @@ from keras.optimizers import SGD
 
 nltk.download('punkt')
 nltk.download('wordnet')
-lemmatizer = WordNetLemmatizer()
 
 ######################################################################
 
@@ -21,41 +20,14 @@ db_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "databas
 json_path = os.path.join(db_path, "intents.json")
 with open(json_path,'r',encoding="UTF-8") as banco:
     intents = json.load(banco)
+
+classes = [i['tag'] for i in intents['intents']]
     
 ################################################################################################################
 #--------------------------------------------------------------------------------------------------------------#
 ################################################################################################################
 
-# abrir a tabela de intents do banco de dados
-# tokenizar (matriz) todos os pattern (possíveis perguntas do usuário) e armazenar em words (lista)
-# adicionamos cada token do patern com a sua "tag" (intenção) em documents (lista)
-# exmplo:
-    # word = nltk.word_tokenize(pattern)
-    # words.extend(word)
-    # documents.append((word, intent['tag']))
-
-# adicionamos as tags em nossa lista de classes
-classes = [i['tag'] for i in intents['intents']]
-
-ignore_words = ["!", "@", "#", "$", "%", "*", "?"]
-
-# percorremos nosso array de objetos
-for intent in intents['intents']:
-    for pattern in intent['patterns']:
-        # com ajuda no nltk fazemos aqui a tokenizaçao dos patterns 
-        # e adicionamos na lista de palavras
-        word = nltk.word_tokenize(pattern)
-        words.extend(word)
-
-        # adiciona aos documentos para identificarmos a tag para a mesma
-        documents.append((word, intent['tag']))
-
-# lematizamos as palavras ignorando os palavras da lista ignore_words
-words = [lemmatizer.lemmatize(w.lower()) for w in words if w not in ignore_words]
-
-
-words,documents = Tratamento.preprocess(intents)
-
+words,documents = Tratamento.preprocess_model(intents)
 
 ################################################################################################################
 #--------------------------------------------------------------------------------------------------------------#
@@ -87,7 +59,7 @@ for document in documents:
 
     # lematizamos cada palavra 
     # na tentativa de representar palavras relacionadas
-    pattern_words = [lemmatizer.lemmatize( word.lower()) for word in pattern_words]
+    pattern_words = [WordNetLemmatizer().lemmatize( word.lower()) for word in pattern_words]
 
     # criamos nosso conjunto de palavras com 1, 
     # se a correspondência de palavras for encontrada no padrão atual
