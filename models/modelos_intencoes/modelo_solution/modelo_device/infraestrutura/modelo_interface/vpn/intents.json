@@ -1,0 +1,27 @@
+{"intents":[
+    {
+        "tag": "sabesp",
+        "patterns": ["tunel 1","tunel 2","sem comunicação","comunicacao","sabesp"],
+        "responses": ["sabesp"]
+},
+{
+    "tag": "ambev",
+    "patterns": ["tunel 1","tunel 2","sem comunicação","comunicacao","ambev","ambev europa"],
+    "responses": ["ambev"]
+},
+{
+    "tag": "online_saz",
+    "patterns": ["tunel 1","tunel 2","sem comunicação","comunicacao","online_saz"],
+    "responses": ["online_saz"]
+},
+{
+    "tag": "online_naz",
+    "patterns": ["tunel 1","tunel 2","sem comunicação","comunicacao","online_naz"],
+    "responses": ["online_naz"]
+},
+{
+    "tag": "online_apac",
+    "patterns": ["tunel 1","tunel 2","sem comunicação","comunicacao","online_apac"],
+    "responses": ["online_apac"]
+}
+]}

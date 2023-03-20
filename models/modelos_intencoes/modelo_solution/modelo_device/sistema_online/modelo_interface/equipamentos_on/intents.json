@@ -1,0 +1,17 @@
+{"intents":[
+    {
+        "tag": "sensor",
+        "patterns": ["sensor","axon","Vínculo não aplicado em ambas as direções do sensor","Vínculo"],
+        "responses": ["sensor"]
+},
+{
+    "tag": "gateway",
+    "patterns": ["gateway","SMQ990","SMQ915","gw não entra na interface",
+    "não conecta na internet do cliente",
+    "estava conectado e nao esta mais",
+    "não comunica com sensor",
+    "gw online porem com data e horas erradas",
+    "gateway conectado mas nao sobe na interface","gw"],
+    "responses": ["gateway"]
+}
+]}
