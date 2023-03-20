@@ -205,3 +205,9 @@ body {
 
     
 }
+
+@media screen and (min-width: 1920px) {
+    .chat {
+        height: 80vh
+    }
+}
