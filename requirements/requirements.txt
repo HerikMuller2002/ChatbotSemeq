@@ -7,3 +7,4 @@ spacy==3.5.1
 scikit-learn==1.2.2
 Flask==2.2.3
 Flask-Cors==3.0.10
+pyspellchecker==0.7.1

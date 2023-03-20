@@ -44,7 +44,7 @@ class Banco_dados:
         conexao = sqlite3.connect('database.db')
         # Executa a instrução SQL SELECT para obter os dados da coluna desejada
         cursor = conexao.cursor()
-        cursor.execute(f"SELECT {column} FROM {table}")
+        cursor.execute(f"SELECT problema FROM problemas")
         # Iterar sobre os resultados e imprimir na tela
         dados =[]
         for resultado in cursor.fetchall():

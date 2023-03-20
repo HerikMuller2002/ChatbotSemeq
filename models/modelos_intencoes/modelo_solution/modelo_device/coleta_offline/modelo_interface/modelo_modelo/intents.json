@@ -1,0 +1,27 @@
+{"intents":[
+    {
+        "tag": "coleta_offline",
+        "patterns": [],
+        "responses": []
+},
+{
+    "tag": "infraestrutura",
+    "patterns": [],
+    "responses": []
+},
+{
+    "tag": "mysemeq",
+    "patterns": [],
+    "responses": []
+},
+{
+    "tag": "portal",
+    "patterns": [],
+    "responses": []
+},
+{
+    "tag": "sistema_online",
+    "patterns": [],
+    "responses": []
+}
+]}
