@@ -1,0 +1,12 @@
+{"intents":[
+    {
+        "tag": "sistema online",
+        "patterns": ["coleta_offline","sistema online", "coletor", "camera termográfica", "mte", "smq", "fluke","fluke ti-10", "flir", "smq945", "coletor não liga", "coletor travado", "alerta de ruido ou ausencia de sinal","ausencia de sinal", "alerta de overload", "alerta de underload", "falha no teclado de membrana", "problema na conexão internet via wifi","problema na conexão wifi", "problema na conexão internet via usb", "não esta salvando as medições","medições", "equipamento não liga","imagem", "imagem desfocada", "termograma preto","apagado","não salva", "não salva o termograma", "não carrega a bateria", "camera liga mas não funciona corretamente", "camera embaçada ou videos lavados", "camera não se conecta no usb", "camera não segura carga", "equipamento não liga","camera", "imagem desfocada", "termograma preto", "não salva o termograma", "não carrega a bateria", "camera liga mas não funciona corretamente","termograma", "camera embaçada ou videos lavados", "camera não se conecta no usb", "camera não segura carga", "bateria baixa", "não lê corrente","carga","bateria"],
+        "responses": ["sistema online"]
+},
+{
+    "tag": "anything_else",
+    "patterns": [],
+    "responses": ["anything_else"]
+}
+]}

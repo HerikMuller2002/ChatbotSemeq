@@ -6,6 +6,7 @@ from extract import class_prediction, get_response
 from keras.models import load_model
 from preprocess import Tratamento
 from preprocess import Correlacao
+from filtro import analysis
 from random import choice
 
 def chatbot_run(input_user):
@@ -42,20 +43,7 @@ def chatbot_run(input_user):
             classes_path = "models\\modelos_intencoes\\modelo_casual\\classes.pkl"
             intent_user = class_prediction(input_user, model_path,words_path,classes_path)
             response = get_response(intent_user, list_intents)
-        elif context == "solution":
-            with open("models\\modelos_intencoes\\modelo_solution\\intents.json",'r',encoding="UTF-8") as bd:
-                list_intents = json.load(bd)
-            model_path = "models\\modelos_intencoes\\modelo_solution\\model.h5"
-            words_path = "models\\modelos_intencoes\\modelo_solution\\words.pkl"
-            classes_path = "models\\modelos_intencoes\\modelo_solution\\classes.pkl"
-            subject = class_prediction(input_user, model_path,words_path,classes_path)
-            if subject[0]['probability'] > 0.7:
-                # chama o póximo nível
-                ...
-            else:
-                # perguntas
-                ...
+        else:
+            response = analysis(input_user)
 
     return response
-
-a = chatbot_run('camera termográfica')
