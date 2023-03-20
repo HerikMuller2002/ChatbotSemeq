@@ -48,7 +48,14 @@ def chatbot_run(input_user):
             model_path = "models\\modelos_intencoes\\modelo_solution\\model.h5"
             words_path = "models\\modelos_intencoes\\modelo_solution\\words.pkl"
             classes_path = "models\\modelos_intencoes\\modelo_solution\\classes.pkl"
-            intent_user = class_prediction(input_user, model_path,words_path,classes_path)
-            response = get_response(intent_user, list_intents)
+            subject = class_prediction(input_user, model_path,words_path,classes_path)
+            if subject[0]['probability'] > 0.7:
+                # chama o póximo nível
+                ...
+            else:
+                # perguntas
+                ...
 
     return response
+
+a = chatbot_run('camera termográfica')
