@@ -6,8 +6,8 @@ from extract import class_prediction, get_response
 from keras.models import load_model
 from preprocess import Tratamento
 from preprocess import Correlacao
-from filtro import analysis
 from random import choice
+from models.modelos_intencoes.modelo_suporte.get_intent import get_solution
 
 def chatbot_run(input_user):
     input_user = Tratamento.preprocess_input(input_user)
@@ -44,6 +44,6 @@ def chatbot_run(input_user):
             intent_user = class_prediction(input_user, model_path,words_path,classes_path)
             response = get_response(intent_user, list_intents)
         else:
-            response = analysis(input_user)
+            response = get_solution(input_user)
 
     return response

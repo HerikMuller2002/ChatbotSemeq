@@ -1,0 +1,30 @@
+{
+  "intents": [
+      {
+        "tag": "suporte",
+        "patterns": ["120mb", "emaint", "sap abi europa", "sap abi saz",  "fluke ti-10", "vibracao", "smq915", "40mb", "portal3",  "axon", "tunel2",  "smq990", "v1", "v3 (crowncork)", "smq", "historiador sabesp", "smq945", "flir", "tunel1", "30mb","falha no teclado de membrana","problema na conexão internet via wifi","problema na conexão internet via usb","não esta salvando as medições","equipamento não liga","imagem desfocada","termograma preto","não salva o termograma","não carrega a bateria","camera liga mas não funciona corretamente","camera embaçada ou videos lavados","camera não se conecta no usb","camera não segura carga","equipamento não liga","imagem desfocada","termograma preto","não salva o termograma","não carrega a bateria","camera liga mas não funciona corretamente","camera embaçada ou videos lavados","camera não se conecta no usb","camera não segura carga","bateria baixa","não lê corrente","120_link down","120_perda de pacote / lentidão","120_link down","120_perda de pacote / lentidão","120_link down","120_perda de pacote / lentidão","sem comunicação","sem comunicação","sem comunicação","sem comunicação","sem comunicação","sem comunicação","sem comunicação","sem comunicação","sem comunicação","sem comunicação","rdp não foi integrado","a baixa do rdp não foi integrada no mysemeq","não gerou ordem de serviço na aplica","não gerou ordem de serviço na aplica","telefonica banda larga", "camera termografica", "a api esta indisponivel", "gw nao entra na interface", "interface inacessivel", "nao gerou ordem de servico na aplica", "infraestrutura", "http 408 timeout", "gw online porem com data e horas erradas", "nao esta logando", "sistema lento", "integracao", "alerta de ruido ou ausencia de sinal", "lentidao", "portal","telefonica dedicado", "dados desatualzidos", "nao esta logando no app", "arvore nao carrega", "vpn", "link", "interface online naz", "alerta de overload", "um endpoint especifico da api nao esta acessivel", "portal nao carrega", "medidas na tendencia do analisador fora de ordem", "interface online saz", "usuario de acesso nao funciona", "myseq", "rdp nao foi integrado", "equipamentos on", "algar dedicado", "coletor travado", "oleo", "nao conecta na internet do cliente", "powerbi", "software on", "coletor", "mysemeq app", "sabesp", "semeq aws api", "http 502 bad gateway", "pagina nao carrega", "estava conectado e nao esta mais", "interface online apac", "alerta de underload", "online naz", "abinbev web platform", "coletor nao liga", "gateway conectado mas nao sobe na interface", "grafico pizza nao carrega", "online saz", "termografia", "gateway", "sensor", "semeq api", "vibracao", "a baixa do rdp nao foi integrada no mysemeq", "sistema online", "portal lento", "vinculo nao aplicado em ambas as direcoes do sensor", "abi mysemeq app", "coleta periodica off line", "api nao retorna dados nem mensagem alguma", "priorizacao nao carrega", "mte", "nao comunica com sensor", "ambev europa", "semeq web", "online apac"],
+        "responses": ["solution"]
+      },
+      {
+        "tag": "casual",
+        "patterns": ["e ae", "o que você faz", "até logo", "exit", "estou com um problemão", "obrigado!", "thank you", "até mais", "eae", "como você chama", "oi, como vai?", "agradeço muito por sua ajuda!", "agradeço muito pela sua ajuda, você foi muito útil!", "eai", "oi, seja bem-vindo!", "good morning", "muito obrigada!", "tenho um problema", "obrigado", "problemas", "tks", "agradeço muito pela sua atenção!", "qual seu nome", "vlw", "muito obrigado pela sua ajuda, você foi muito útil!", "tenho um problemão", "tchau", "obrigado pela ajuda", "muito obrigada", "quem é vc", "bem-vindo!", "e ai", "salve", "preciso de uma mão", "preciso de uma ajudinha", "muito obrigado pela sua atenção!", "a gente se ve", "estou com probleminha", "problema", "oi, tudo bem?", "o que vc faz", "flw", "valeu", "seja bem-vindo!", "finalizar", "me ajuda", "olá!", "cancelar", "ola", "falou", "ogd", "como vc se chama", "desligar", "problemão", "quem é você", "agradeço muito!", "olá, é um prazer te ver!", "tenho um probleminha", "me da uma mãozinha", "pode me ajudar?", "sai", "muito obrigado pela resposta!", "parar", "obrigado pela resposta!", "sair", "tudo bem", "terminar", "boa noite!", "obrigado pela sua atenção!", "oi, que bom que você veio!", "o que é você", "obrigada", "hi", "muito obrigado por sua ajuda!", "obrigada pela ajuda", "xau", "tchau tchau", "agradeço muito pela resposta!", "boa tarde", "muito obrigado!", "obrigada!", "obrigado por sua ajuda!", "adeus", "encerrar", "probleminha", "bye bye", "muito obrigado", "boa tarde!", "estou com problema", "boa noite", "olá", "esta bem", "hey", "bom dia", "bye", "oi", "hello"],
+        "responses": ["casual"]
+      },
+      {
+        "tag": "anything_else",
+        "patterns": [],
+        "responses": ["anything_else"],
+        "context": [""]
+      },
+      {
+        "tag": "unsolved",
+        "patterns": ["unsolved"],
+        "responses": ["unsolved"]
+      },
+      {
+        "tag": "feedback",
+        "patterns": ["feedback"],
+        "responses": ["feedback"]
+      }
+    ]
+  }

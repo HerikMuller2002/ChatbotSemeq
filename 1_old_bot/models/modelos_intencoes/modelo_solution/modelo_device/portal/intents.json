@@ -46,10 +46,5 @@
         "arvore não carrega",
         "medidas na tendencia do analisador fora de ordem"],
         "responses": ["software"]
-    },
-    {
-        "tag": "anything_else",
-        "patterns": [],
-        "responses": ["anything_else"]
     }
     ]}

@@ -33,11 +33,5 @@
         "gw online porem com data e horas erradas",
         "gateway conectado mas nao sobe na interface","gw"],
         "responses": ["equipamentos_on"]
-    },
-    {
-      "tag": "anything_else",
-      "patterns": [],
-      "responses": ["anything_else"],
-      "context": [""]
     }
 ]}
