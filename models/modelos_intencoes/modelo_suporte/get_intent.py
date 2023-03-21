@@ -101,15 +101,3 @@ def get_solution(input_user):
 
     response = f"{subject} / {device} / {interface} / {model} / {problem}"
     return response
-    
-# filtro_subject = df.loc[df['subject'] == subject]
-# lista_subject = filtro_subject.values.tolist()
-
-# filtro_device = filtro_subject.loc[filtro_subject['device'] == device]
-
-
-# filtro_interface = filtro_device.loc[filtro_device['interface'] == interface]
-
-
-# filtro_model = df.loc[df['subject'] == model]
-# lista_model = filtro_model.values.tolist()
