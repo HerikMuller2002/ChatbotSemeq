@@ -48,16 +48,19 @@ class Tratamento:
         text = sub(r"[!#$%&'()*+,-./:;<=>?@[^_`{|}~]+", ' ', sub('[áàãâä]', 'a', sub('[éèêë]', 'e', sub('[íìîï]', 'i', sub('[óòõôö]', 'o', sub('[úùûü]', 'u', text))))))
         # tirar espaços em branco
         text = sub(r'\s+', ' ',text)
-        # list_text = text.split()
-        # spell = SpellChecker(language='pt')
-        # # Criar uma nova lista com as correções ortográficas
-        # correcoes = [spell.correction(palavra) for palavra in list_text]
-        # correcoes = [c for c in correcoes if c is not None]
-        # if len(correcoes) > 1:
-        #     # Juntar a lista corrigida em uma única string
-        #     text = ' '.join(correcoes)
-        # else:
-        #     pass
+        return text
+    
+    def correcao(text):
+        list_text = text.split()
+        spell = SpellChecker(language='pt')
+        # Criar uma nova lista com as correções ortográficas
+        correcoes = [spell.correction(palavra) for palavra in list_text]
+        correcoes = [c for c in correcoes if c is not None]
+        if len(correcoes) > 1:
+            # Juntar a lista corrigida em uma única string
+            text = ' '.join(correcoes)
+        else:
+            pass
         return text
 
 class Correlacao():

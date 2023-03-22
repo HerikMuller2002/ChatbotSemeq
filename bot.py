@@ -7,7 +7,8 @@ from keras.models import load_model
 from preprocess import Tratamento
 from preprocess import Correlacao
 from random import choice
-from models.modelos_intencoes.modelo_suporte.get_intent import get_solution
+from models.modelos_intencoes.modelo_suporte.get_intent import get_subject
+from logs import log_chat
 
 def chatbot_run(input_user):
     input_user = Tratamento.preprocess_input(input_user)
@@ -19,8 +20,6 @@ def chatbot_run(input_user):
         list_response = list_censored["intents"][0]["responses"]
         response = choice(list_response)
     else:
-        # armazena a lista de palavras censuradas
-        # json_censored_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "ChatbotSemeq\\database\\censored.json"))
         with open("models\\modelo_contexto\\intents.json",'r',encoding="UTF-8") as bd:
             list_context = json.load(bd)
         model_path = "models\\modelo_contexto\\model.h5"
@@ -42,8 +41,35 @@ def chatbot_run(input_user):
             words_path = "models\\modelos_intencoes\\modelo_casual\\words.pkl"
             classes_path = "models\\modelos_intencoes\\modelo_casual\\classes.pkl"
             intent_user = class_prediction(input_user, model_path,words_path,classes_path)
+            if intent_user[0]['intent'] == 'bye':
+                log_chat.clear_log()
             response = get_response(intent_user, list_intents)
         else:
-            response = get_solution(input_user)
-
+            json_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "logs"))
+            if os.path.exists(json_path):
+                if os.path.isfile(os.path.join(json_path, 'log.json')):
+                    with open(os.path.join(json_path, 'log.json'), 'r', encoding='utf-8') as f:
+                        log = json.load(f)
+                    count_question = log[0]["count_question"]
+                    if count_question > 0:
+                        first_question = False
+                    else:
+                        first_question = True
+                else:
+                    count_question = 0
+                    first_question = True
+            response,subject,device,interface,model,problem,list_indice,indice = get_subject(input_user,first_question)
+        log_chat.log_chat(input_user,context,response,count_question,subject,device,interface,model,problem,list_indice,indice)
     return response
+
+while True:
+    input_user = input(": ")
+    if input_user == 'cls':
+        break
+    else:
+        a = chatbot_run(input_user)
+        if type(a) == list:
+            for i in a:
+                print(i)
+        else:
+            print(a)
