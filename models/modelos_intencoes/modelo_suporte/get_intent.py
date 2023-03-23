@@ -2,7 +2,8 @@ import pandas as pd
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-from re import sub
+import os
+import json
 
 def tf_idf(user_input, dataframe):
     dataframe = dataframe.astype(str)
@@ -21,6 +22,81 @@ def tf_idf(user_input, dataframe):
     indice_sentenca = np.where(similaridade == vetor_encontrado)[0][-1]
     return vetor_encontrado, indice_sentenca
 
+
+
+def get_response(log_conversation,input_user):
+    subcontext = log_conversation["subcontext"]
+    df = pd.read_excel('\\Users\\Semeq\\Desktop\\ChatbotSemeq\\database\\respostas_perguntas.xlsx')
+    # cria um dicionário para armazenar os valores de similaridade de cada coluna
+    similarity_dict = {}
+    # percorre as colunas do dataframe
+    for column in df.columns:
+        # cria um vetor com os textos da coluna e do subcontext
+        text_list = list(df[column].values) + [subcontext]
+        # instância o vetorizador tf-idf
+        vectorizer = TfidfVectorizer()
+        # calcula a matriz de frequência com o vetorizador
+        tf_idf_matrix = vectorizer.fit_transform(text_list)
+        # calcula a similaridade do input do usuário com a coluna atual
+        input_vector = vectorizer.transform([input_user])
+        similarity = (input_vector * tf_idf_matrix.T).A[0].max()
+        # armazena a similaridade no dicionário
+        similarity_dict[column] = similarity
+    # obtém a coluna com maior similaridade
+    max_column = max(similarity_dict, key=similarity_dict.get)
+    return max_column, subcontext
+
+
+
+# def get_pre_response(log_conversation,input_user,content):
+#     json_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "logs"))
+#     if os.path.isfile(os.path.join(json_path, 'log.json')):
+#         df = pd.read_excel('\\Users\\Semeq\\Desktop\\ChatbotSemeq\\database\\respostas_perguntas.xlsx')
+#         df_positive = df[['pattern_positive']]
+#         df_negative = df[['pattern_negative']]
+#         vetor_positive, indice_sentenca = tf_idf(input_user, df_positive)
+#         vetor_negative, indice_sentenca = tf_idf(input_user, df_negative)
+#         ultimo_nao_boolean = None
+#         for chave,valor in new_dict.items():
+#             if type(valor) != bool:
+#                 ultimo_nao_boolean = chave
+#         if vetor_positive > vetor_negative:
+#             original_dict = log_conversation[-1]
+#             last_input = original_dict["pattern"]
+#             new_dict = {
+#             "subject": original_dict["subject"],
+#             "device": original_dict["device"],
+#             "interface": original_dict["interface"],
+#             "model": original_dict["model"],
+#             "problem": original_dict["problem"]
+#             }
+#             # percorre a lista da direita para a esquerda usando reversed() e retorna o primeiro elemento que não é booleano
+#             level_intent = []
+#             for chave,valor in new_dict.items():
+#                 if type(valor) != bool:
+#                     level_intent.append(valor)
+#             levels_intents = ' '.join(level_intent)
+#             return levels_intents + ' ' + content + ' ', {ultimo_nao_boolean:True}
+#         elif vetor_negative > vetor_positive:
+#             original_dict = log_conversation[-1]
+#             last_input = original_dict["pattern"]
+#             new_dict = {
+#             "subject": original_dict["subject"],
+#             "device": original_dict["device"],
+#             "interface": original_dict["interface"],
+#             "model": original_dict["model"],
+#             "problem": original_dict["problem"]
+#             }
+#             # percorre a lista da direita para a esquerda usando reversed() e retorna o primeiro elemento que não é booleano
+#             level_intent = []
+#             for chave,valor in new_dict.items():
+#                 if type(valor) != bool:
+#                     level_intent.append(valor)
+#             levels_intents = ' '.join(level_intent)
+#             return levels_intents + ' ', {ultimo_nao_boolean:False}
+#     else:
+#         return input_user,{"verify_passar":False}
+
 def get_subject(input_user, first_question):
     # assunto
     df = pd.read_excel('\\Users\\Semeq\\Desktop\\ChatbotSemeq\\database\\troubleshooting.xlsx')
@@ -35,30 +111,46 @@ def get_subject(input_user, first_question):
             vetor = vetor_encontrado
             linha = list_subject_df.iloc[indice_sentenca]
     subject = linha['subject']
-    if vetor_encontrado < 0.7:
+    if vetor < 0.7:
         # perguntas
         df_questions = pd.read_excel('\\Users\\Semeq\\Desktop\\ChatbotSemeq\\database\\question.xlsx')
-        first_question = "Estou com dificuldade de identificar seu problema na base de dados! Irei fazer algumas perguntas para que eu possa entender melhor ok!?"
         list_response = []
         if first_question:
+            first_question = "Estou com dificuldade de identificar seu problema na base de dados! Irei fazer algumas perguntas para que eu possa entender melhor ok!?"
             list_response.append(first_question)
-        if vetor > 0.2:
-            df_moment1 = df_questions.loc[df_questions['subject'] == subject]
-            linha = df_moment1.iloc[indice_sentenca]
-            response = linha['subject_question']
-            return [response]
-        else:
-            intro = "Qual dessas opções o seu problema melhor se enquadra?"
-            list_response.append(intro)
-            count = 0
-            for i in list_subject:
-                count += 1
-                i_subject = f'{count} - {i.capitalize()}'
-                list_response.append(i_subject)
-            response = list_response
-        return response
+            first_question = False
+            if vetor > 0.3:
+                df_moment1 = df_questions.loc[df_questions['subject'] == subject]
+                linha = df_moment1.iloc[indice_sentenca]
+                list_response.append(linha['subject_question'])
+                response = list_response
+                subject = False
+                device = False
+                interface = False
+                model = False
+                problem = False
+                subcontext = subject
+                return response, subject, device, interface, model, problem,first_question,subcontext
+            if vetor < 0.3:
+                intro = "Qual dessas opções o seu problema melhor se enquadra?"
+                list_response.append(intro)
+                count = 0
+                for i in list_subject:
+                    count += 1
+                    i_subject = f'{count} - {i.capitalize()}'
+                    list_response.append(i_subject)
+                response = list_response
+                subject = False
+                device = False
+                interface = False
+                model = False
+                problem = False
+                subcontext = False
+                return response, subject, device, interface, model, problem,first_question,subcontext
     else:
-        return get_device(input_user,df,subject,first_question)
+        subcontext = subject
+        response, device, interface, model, problem,first_question = get_device(input_user,df,subject,first_question)
+        return response, subject, device, interface, model, problem, first_question, subcontext
 
 def get_device(input_user,df,subject,first_question):
     # device
@@ -74,19 +166,26 @@ def get_device(input_user,df,subject,first_question):
             vetor = vetor_encontrado
             linha = list_device_df.iloc[indice_sentenca]
     device = linha['device']
-    if vetor_encontrado < 0.7:
+    if vetor < 0.7:
         # perguntas
         df_questions = pd.read_excel('\\Users\\Semeq\\Desktop\\ChatbotSemeq\\database\\question.xlsx')
-        first_question = "Estou com dificuldade de identificar seu problema na base de dados! Irei fazer algumas perguntas para que eu possa entender melhor ok!?"
         list_response = []
         if first_question:
+            first_question = "Estou com dificuldade de identificar seu problema na base de dados! Irei fazer algumas perguntas para que eu possa entender melhor ok!?"
             list_response.append(first_question)
-        if vetor > 0.2:
+            first_question = False
+        if vetor > 0.3:
             df_moment1 = df_questions.loc[df_questions['subject'] == subject]
             df_moment2 = df_moment1.loc[df_moment1['device'] == device]
             linha =  df_moment2.iloc[indice_sentenca]
-            response = linha['device_question']
-            return [response]
+            list_response.append(linha['device_question'])
+            response = list_response
+            device = False
+            interface = False
+            model = False
+            problem = False
+            subcontext = device
+            return response, device, interface, model, problem,first_question,subcontext
         else:
             intro = "Qual dessas opções o seu problema melhor se enquadra?"
             list_response.append(intro)
@@ -96,9 +195,16 @@ def get_device(input_user,df,subject,first_question):
                 i_device = f'{count} - {i.capitalize()}'
                 list_response.append(i_device)
             response = list_response
-        return response
+            device = False
+            interface = False
+            model = False
+            problem = False
+            subcontext = False
+            return response, device, interface, model, problem,first_question,subcontext
     else:
-        return get_interface(input_user,df,subject,df_subject,device,first_question)
+        subcontext = device
+        response, interface, model, problem,first_question = get_interface(input_user,df,subject,df_subject,device,first_question)
+        return response, device, interface, model, problem,first_question,subcontext
 
 def get_interface(input_user,df,subject,df_subject,device,first_question):
     # interface
@@ -114,23 +220,26 @@ def get_interface(input_user,df,subject,df_subject,device,first_question):
             vetor = vetor_encontrado
             linha = list_interface_df.iloc[indice_sentenca]
     interface = linha['interface']
-    if vetor_encontrado < 0.7:
+    if vetor < 0.7:
         # perguntas
         df_questions = pd.read_excel('\\Users\\Semeq\\Desktop\\ChatbotSemeq\\database\\question.xlsx')
-        first_question = "Estou com dificuldade de identificar seu problema na base de dados! Irei fazer algumas perguntas para que eu possa entender melhor ok!?"
         list_response = []
         if first_question:
+            first_question = "Estou com dificuldade de identificar seu problema na base de dados! Irei fazer algumas perguntas para que eu possa entender melhor ok!?"
             list_response.append(first_question)
-        if vetor > 0.2:
+            first_question = False
+        if vetor > 0.3:
             df_moment1 = df_questions.loc[df_questions['subject'] == subject]
             df_moment2 = df_moment1.loc[df_moment1['device'] == device]
             df_moment3 = df_moment2.loc[df_moment2['interface'] == interface]
             linha = df_moment3.iloc[indice_sentenca]
-            response = linha['interface_question']
+            list_response.append(linha['interface_question'])
+            response = list_response
             interface = False
             model = False
             problem = False
-            return response, interface, model, problem
+            subcontext = interface
+            return response, interface, model, problem,first_question,subcontext
         else:
             intro = "Qual dessas opções o seu problema melhor se enquadra?"
             list_response.append(intro)
@@ -143,10 +252,12 @@ def get_interface(input_user,df,subject,df_subject,device,first_question):
             interface = False
             model = False
             problem = False
-            return response, interface, model, problem
+            subcontext = False
+            return response, interface, model, problem,first_question,subcontext
     else:
-        response, model, problem = get_model(input_user,df,subject,df_subject,device,df_device,interface,first_question)
-        return response, interface, model, problem
+        subcontext = interface
+        response, model, problem,first_question = get_model(input_user,df,subject,df_subject,device,df_device,interface,first_question)
+        return response, interface, model, problem,first_question,subcontext
 
 def get_model(input_user,df,subject,df_subject,device,df_device,interface,first_question):
     # modelo
@@ -162,23 +273,26 @@ def get_model(input_user,df,subject,df_subject,device,df_device,interface,first_
             vetor = vetor_encontrado
             linha = list_model_df.iloc[indice_sentenca]
     model = linha['model']
-    if vetor_encontrado < 0.7:
+    if vetor < 0.7:
         # perguntas
         df_questions = pd.read_excel('\\Users\\Semeq\\Desktop\\ChatbotSemeq\\database\\question.xlsx')
-        first_question = "Estou com dificuldade de identificar seu problema na base de dados! Irei fazer algumas perguntas para que eu possa entender melhor ok!?"
         list_response = []
         if first_question:
+            first_question = "Estou com dificuldade de identificar seu problema na base de dados! Irei fazer algumas perguntas para que eu possa entender melhor ok!?"
             list_response.append(first_question)
-        if vetor > 0.2:
+            first_question = False
+        if vetor > 0.3:
             df_moment1 = df_questions.loc[df_questions['subject'] == subject]
             df_moment2 = df_moment1.loc[df_moment1['device'] == device]
             df_moment3 = df_moment2.loc[df_moment2['interface'] == interface]
             df_moment4 = df_moment3.loc[df_moment3['model'] == model]
             linha = df_moment3.iloc[indice_sentenca]
-            response = linha['model_question']
+            list_response.append(linha['model_question'])
+            response = list_response
             model = False
             problem = False
-            return response, model, problem
+            subcontext = model
+            return response, model, problem,first_question,subcontext
         else:
             intro = "Qual dessas opções o seu problema melhor se enquadra?"
             list_response.append(intro)
@@ -190,10 +304,12 @@ def get_model(input_user,df,subject,df_subject,device,df_device,interface,first_
             response = list_response
             model = False
             problem = False
-            return response, model, problem
+            subcontext = False
+            return response, model, problem,first_question,subcontext
     else:
-        response,problem = get_problem(input_user,df,subject,df_subject,device,df_device,interface,df_interface,model,first_question)
-        return response, model, problem
+        subcontext = model
+        response,problem,first_question = get_problem(input_user,df,subject,df_subject,device,df_device,interface,df_interface,model,first_question)
+        return response, model, problem,first_question,subcontext
 
 def get_problem(input_user,df,subject,df_subject,device,df_device,interface,df_interface,model,first_question):
     # problem
@@ -209,23 +325,26 @@ def get_problem(input_user,df,subject,df_subject,device,df_device,interface,df_i
             vetor = vetor_encontrado
             linha = list_problem_df.iloc[indice_sentenca]
     problem = linha['problem']
-    if vetor_encontrado < 0.7:
+    if vetor < 0.7:
         # perguntas
         df_questions = pd.read_excel('\\Users\\Semeq\\Desktop\\ChatbotSemeq\\database\\question.xlsx')
-        first_question = "Estou com dificuldade de identificar seu problema na base de dados! Irei fazer algumas perguntas para que eu possa entender melhor ok!?"
         list_response = []
         if first_question:
+            first_question = "Estou com dificuldade de identificar seu problema na base de dados! Irei fazer algumas perguntas para que eu possa entender melhor ok!?"
             list_response.append(first_question)
-        if vetor > 0.2:
+            first_question = False
+        if vetor > 0.3:
             df_moment1 = df_questions.loc[df_questions['subject'] == subject]
             df_moment2 = df_moment1.loc[df_moment1['device'] == device]
             df_moment3 = df_moment2.loc[df_moment2['interface'] == interface]
             df_moment4 = df_moment3.loc[df_moment3['model'] == model]
             df_moment5 = df_moment4.loc[df_moment4['problem'] == problem]
             linha = df_moment3.iloc[indice_sentenca]
-            response = linha['problem_question']
+            list_response.append(linha['problem_question'])
+            response = list_response
             problem = False
-            return response, problem
+            subcontext = problem
+            return response, problem,first_question,subcontext
         else:
             intro = "Qual dessas opções o seu problema melhor se enquadra?"
             list_response.append(intro)
@@ -236,7 +355,9 @@ def get_problem(input_user,df,subject,df_subject,device,df_device,interface,df_i
                 list_response.append(i_problem)
             response = list_response
             problem = False
-            return response, problem
+            subcontext = False
+            return response, problem,first_question,subcontext
     else:
-        response = False
-        return response, problem
+        subcontext = problem
+        response = problem
+        return response, problem,first_question,subcontext

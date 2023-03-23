@@ -8,6 +8,7 @@ from preprocess import Tratamento
 from preprocess import Correlacao
 from random import choice
 from models.modelos_intencoes.modelo_suporte.get_intent import get_subject
+from models.modelos_intencoes.modelo_suporte.get_intent import get_pre_response
 from logs import log_chat
 
 def chatbot_run(input_user):
@@ -50,16 +51,27 @@ def chatbot_run(input_user):
                 if os.path.isfile(os.path.join(json_path, 'log.json')):
                     with open(os.path.join(json_path, 'log.json'), 'r', encoding='utf-8') as f:
                         log = json.load(f)
-                    count_question = log[0]["count_question"]
-                    if count_question > 0:
-                        first_question = False
-                    else:
-                        first_question = True
-                else:
-                    count_question = 0
-                    first_question = True
-            response,subject,device,interface,model,problem,list_indice,indice = get_subject(input_user,first_question)
-        log_chat.log_chat(input_user,context,response,count_question,subject,device,interface,model,problem,list_indice,indice)
+                    first_question = log[-1]["first_question"]
+
+            list_indice = 0
+            indice = 0
+
+            try:
+                with open("logs\\log.json",'r',encoding="UTF-8") as log:
+                    log_conversation = json.load(log)
+                first_question = log_conversation[-1]["first_question"]
+            except IndexError:
+                first_question = True
+            if context == "question":
+                input_user,verify_passar = get_pre_response(log_conversation,input_user,subcontext)
+                with open("logs\\log.json",'r',encoding="UTF-8") as log:
+                    log_conversation = json.load(log)
+            try:
+                subcontext = log_conversation[-1]["subcontext"]
+            except:
+                subcontext = False
+            response,subject,device,interface,model,problem,first_question,subcontext = get_subject(input_user,first_question)
+            log_chat.log_chat(input_user,context,subcontext,response,first_question,subject,device,interface,model,problem,list_indice,indice)
     return response
 
 while True:

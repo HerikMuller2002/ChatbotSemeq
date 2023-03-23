@@ -1,0 +1,18 @@
+[
+    {
+        "pattern": "mysemeq software power bi",
+        "context": "solution",
+        "response": [
+            "Estou com dificuldade de identificar seu problema na base de dados! Irei fazer algumas perguntas para que eu possa entender melhor ok!?",
+            "Est\u00e1 com problema com o portal?"
+        ],
+        "first_question": false,
+        "subject": "mysemeq",
+        "device": "software",
+        "interface": false,
+        "model": false,
+        "problem": false,
+        "list_indice": 0,
+        "indice": 0
+    }
+]
