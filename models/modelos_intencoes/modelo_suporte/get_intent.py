@@ -4,6 +4,9 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import os
 import json
+import sys
+pai_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
+sys.path.insert(0,pai_path)
 
 def tf_idf(user_input, dataframe):
     dataframe = dataframe.astype(str)
@@ -22,17 +25,27 @@ def tf_idf(user_input, dataframe):
     indice_sentenca = np.where(similaridade == vetor_encontrado)[0][-1]
     return vetor_encontrado, indice_sentenca
 
-
-
 def get_response(log_conversation,input_user):
-    subcontext = log_conversation["subcontext"]
-    df = pd.read_excel('\\Users\\Semeq\\Desktop\\ChatbotSemeq\\database\\respostas_perguntas.xlsx')
+    original_dict = log_conversation[-1]
+    new_dict = {
+        "subject": original_dict["subject"],
+        "device": original_dict["device"],
+        "interface": original_dict["interface"],
+        "model": original_dict["model"],
+        "problem": original_dict["problem"]
+        } 
+    subcontext = None
+    for chave, valor in reversed(list(new_dict.items())):
+        if type(valor) == str:
+            subcontext = chave
+            break
+    df = pd.read_excel(f'{pai_path}\\database\\respostas_perguntas.xlsx')
     # cria um dicionário para armazenar os valores de similaridade de cada coluna
     similarity_dict = {}
     # percorre as colunas do dataframe
     for column in df.columns:
         # cria um vetor com os textos da coluna e do subcontext
-        text_list = list(df[column].values) + [subcontext]
+        text_list = [str(i) for i in df[column].dropna().tolist() if not isinstance(i, bool)] + [subcontext]
         # instância o vetorizador tf-idf
         vectorizer = TfidfVectorizer()
         # calcula a matriz de frequência com o vetorizador
@@ -46,7 +59,11 @@ def get_response(log_conversation,input_user):
     max_column = max(similarity_dict, key=similarity_dict.get)
     return max_column, subcontext
 
-
+with open(os.path.join(pai_path, 'logs\\log.json'), 'r', encoding='utf-8') as f:
+    log = json.load(f)
+a,b = get_response(log,'sim')
+print(a)
+print(b)
 
 # def get_pre_response(log_conversation,input_user,content):
 #     json_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "logs"))
@@ -97,9 +114,9 @@ def get_response(log_conversation,input_user):
 #     else:
 #         return input_user,{"verify_passar":False}
 
-def get_subject(input_user, first_question):
+def get_subject(input_user, first_question=True):
     # assunto
-    df = pd.read_excel('\\Users\\Semeq\\Desktop\\ChatbotSemeq\\database\\troubleshooting.xlsx')
+    df = pd.read_excel(f'{pai_path}\\database\\troubleshooting.xlsx')
     troubleshooting = df.groupby('subject')
     list_subject = [i for i,j in troubleshooting]
     vetor = 0
@@ -113,7 +130,7 @@ def get_subject(input_user, first_question):
     subject = linha['subject']
     if vetor < 0.7:
         # perguntas
-        df_questions = pd.read_excel('\\Users\\Semeq\\Desktop\\ChatbotSemeq\\database\\question.xlsx')
+        df_questions = pd.read_excel(f'{pai_path}\\database\\question.xlsx')
         list_response = []
         if first_question:
             first_question = "Estou com dificuldade de identificar seu problema na base de dados! Irei fazer algumas perguntas para que eu possa entender melhor ok!?"
@@ -129,8 +146,7 @@ def get_subject(input_user, first_question):
                 interface = False
                 model = False
                 problem = False
-                subcontext = subject
-                return response, subject, device, interface, model, problem,first_question,subcontext
+                return response, subject, device, interface, model, problem,first_question
             if vetor < 0.3:
                 intro = "Qual dessas opções o seu problema melhor se enquadra?"
                 list_response.append(intro)
@@ -145,12 +161,10 @@ def get_subject(input_user, first_question):
                 interface = False
                 model = False
                 problem = False
-                subcontext = False
-                return response, subject, device, interface, model, problem,first_question,subcontext
+                return response, subject, device, interface, model, problem, first_question
     else:
-        subcontext = subject
         response, device, interface, model, problem,first_question = get_device(input_user,df,subject,first_question)
-        return response, subject, device, interface, model, problem, first_question, subcontext
+        return response, subject, device, interface, model, problem, first_question
 
 def get_device(input_user,df,subject,first_question):
     # device
@@ -168,7 +182,7 @@ def get_device(input_user,df,subject,first_question):
     device = linha['device']
     if vetor < 0.7:
         # perguntas
-        df_questions = pd.read_excel('\\Users\\Semeq\\Desktop\\ChatbotSemeq\\database\\question.xlsx')
+        df_questions = pd.read_excel(f'{pai_path}\\database\\question.xlsx')
         list_response = []
         if first_question:
             first_question = "Estou com dificuldade de identificar seu problema na base de dados! Irei fazer algumas perguntas para que eu possa entender melhor ok!?"
@@ -184,8 +198,7 @@ def get_device(input_user,df,subject,first_question):
             interface = False
             model = False
             problem = False
-            subcontext = device
-            return response, device, interface, model, problem,first_question,subcontext
+            return response, device, interface, model, problem,first_question
         else:
             intro = "Qual dessas opções o seu problema melhor se enquadra?"
             list_response.append(intro)
@@ -199,16 +212,14 @@ def get_device(input_user,df,subject,first_question):
             interface = False
             model = False
             problem = False
-            subcontext = False
-            return response, device, interface, model, problem,first_question,subcontext
+            return response, device, interface, model, problem,first_question
     else:
-        subcontext = device
-        response, interface, model, problem,first_question = get_interface(input_user,df,subject,df_subject,device,first_question)
-        return response, device, interface, model, problem,first_question,subcontext
+        response, interface, model, problem,first_question = get_interface(input_user,subject,df_subject,device,first_question)
+        return response, device, interface, model, problem,first_question
 
-def get_interface(input_user,df,subject,df_subject,device,first_question):
+def get_interface(input_user,subject,df_subject,device,first_question):
     # interface
-    df_device = df_subject.loc[df['device'] == device]
+    df_device = df_subject.loc[df_subject['device'] == device]
     troubleshooting3 = df_device.groupby('interface')
     list_interface = [i for i,j in troubleshooting3]
     vetor = 0
@@ -222,7 +233,7 @@ def get_interface(input_user,df,subject,df_subject,device,first_question):
     interface = linha['interface']
     if vetor < 0.7:
         # perguntas
-        df_questions = pd.read_excel('\\Users\\Semeq\\Desktop\\ChatbotSemeq\\database\\question.xlsx')
+        df_questions = pd.read_excel(f'{pai_path}\\database\\question.xlsx')
         list_response = []
         if first_question:
             first_question = "Estou com dificuldade de identificar seu problema na base de dados! Irei fazer algumas perguntas para que eu possa entender melhor ok!?"
@@ -238,8 +249,7 @@ def get_interface(input_user,df,subject,df_subject,device,first_question):
             interface = False
             model = False
             problem = False
-            subcontext = interface
-            return response, interface, model, problem,first_question,subcontext
+            return response, interface, model, problem,first_question
         else:
             intro = "Qual dessas opções o seu problema melhor se enquadra?"
             list_response.append(intro)
@@ -252,16 +262,14 @@ def get_interface(input_user,df,subject,df_subject,device,first_question):
             interface = False
             model = False
             problem = False
-            subcontext = False
-            return response, interface, model, problem,first_question,subcontext
+            return response, interface, model, problem,first_question
     else:
-        subcontext = interface
-        response, model, problem,first_question = get_model(input_user,df,subject,df_subject,device,df_device,interface,first_question)
-        return response, interface, model, problem,first_question,subcontext
+        response, model, problem,first_question = get_model(input_user,subject,df_subject,device,df_device,interface,first_question)
+        return response, interface, model, problem,first_question
 
-def get_model(input_user,df,subject,df_subject,device,df_device,interface,first_question):
+def get_model(input_user,subject,df_subject,device,df_device,interface,first_question):
     # modelo
-    df_interface = df_device.loc[df['interface'] == interface]
+    df_interface = df_device.loc[df_device['interface'] == interface]
     troubleshooting4 = df_device.groupby('model')
     list_model = [i for i,j in troubleshooting4]
     vetor = 0
@@ -275,7 +283,7 @@ def get_model(input_user,df,subject,df_subject,device,df_device,interface,first_
     model = linha['model']
     if vetor < 0.7:
         # perguntas
-        df_questions = pd.read_excel('\\Users\\Semeq\\Desktop\\ChatbotSemeq\\database\\question.xlsx')
+        df_questions = pd.read_excel(f'{pai_path}\\database\\question.xlsx')
         list_response = []
         if first_question:
             first_question = "Estou com dificuldade de identificar seu problema na base de dados! Irei fazer algumas perguntas para que eu possa entender melhor ok!?"
@@ -286,13 +294,12 @@ def get_model(input_user,df,subject,df_subject,device,df_device,interface,first_
             df_moment2 = df_moment1.loc[df_moment1['device'] == device]
             df_moment3 = df_moment2.loc[df_moment2['interface'] == interface]
             df_moment4 = df_moment3.loc[df_moment3['model'] == model]
-            linha = df_moment3.iloc[indice_sentenca]
+            linha = df_moment4.iloc[indice_sentenca]
             list_response.append(linha['model_question'])
             response = list_response
             model = False
             problem = False
-            subcontext = model
-            return response, model, problem,first_question,subcontext
+            return response, model, problem,first_question
         else:
             intro = "Qual dessas opções o seu problema melhor se enquadra?"
             list_response.append(intro)
@@ -304,16 +311,14 @@ def get_model(input_user,df,subject,df_subject,device,df_device,interface,first_
             response = list_response
             model = False
             problem = False
-            subcontext = False
-            return response, model, problem,first_question,subcontext
+            return response, model, problem,first_question
     else:
-        subcontext = model
-        response,problem,first_question = get_problem(input_user,df,subject,df_subject,device,df_device,interface,df_interface,model,first_question)
-        return response, model, problem,first_question,subcontext
+        response,problem,first_question = get_problem(input_user,subject,device,interface,df_interface,model,first_question)
+        return response, model, problem,first_question
 
-def get_problem(input_user,df,subject,df_subject,device,df_device,interface,df_interface,model,first_question):
+def get_problem(input_user,subject,device,interface,df_interface,model,first_question):
     # problem
-    df_model = df_interface.loc[df['model'] == model]
+    df_model = df_interface.loc[df_interface['model'] == model]
     troubleshooting5 = df_model.groupby('problem')
     list_problem = [i for i,j in troubleshooting5]
     vetor = 0
@@ -327,7 +332,7 @@ def get_problem(input_user,df,subject,df_subject,device,df_device,interface,df_i
     problem = linha['problem']
     if vetor < 0.7:
         # perguntas
-        df_questions = pd.read_excel('\\Users\\Semeq\\Desktop\\ChatbotSemeq\\database\\question.xlsx')
+        df_questions = pd.read_excel(f'{pai_path}\\database\\question.xlsx')
         list_response = []
         if first_question:
             first_question = "Estou com dificuldade de identificar seu problema na base de dados! Irei fazer algumas perguntas para que eu possa entender melhor ok!?"
@@ -339,12 +344,11 @@ def get_problem(input_user,df,subject,df_subject,device,df_device,interface,df_i
             df_moment3 = df_moment2.loc[df_moment2['interface'] == interface]
             df_moment4 = df_moment3.loc[df_moment3['model'] == model]
             df_moment5 = df_moment4.loc[df_moment4['problem'] == problem]
-            linha = df_moment3.iloc[indice_sentenca]
+            linha = df_moment5.iloc[indice_sentenca]
             list_response.append(linha['problem_question'])
             response = list_response
             problem = False
-            subcontext = problem
-            return response, problem,first_question,subcontext
+            return response, problem,first_question
         else:
             intro = "Qual dessas opções o seu problema melhor se enquadra?"
             list_response.append(intro)
@@ -355,9 +359,19 @@ def get_problem(input_user,df,subject,df_subject,device,df_device,interface,df_i
                 list_response.append(i_problem)
             response = list_response
             problem = False
-            subcontext = False
-            return response, problem,first_question,subcontext
+            return response, problem,first_question
     else:
-        subcontext = problem
         response = problem
-        return response, problem,first_question,subcontext
+        return response, problem,first_question
+    
+# while True:
+#     input_user = input(": ")
+#     if input_user == 'cls':
+#         break
+#     else:
+#         a,subject,device,interface,model,problem,first_question = get_subject(input_user)
+#         if type(a) == list:
+#             for i in a:
+#                 print(i)
+#         else:
+#             print(a)

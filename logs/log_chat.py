@@ -1,7 +1,7 @@
 import os
 import json
 
-def log_chat(pattern, context, subcontext, response,first_question, subject, device, interface, model, problem, list_indice, indice):
+def log_chat(pattern, context,response,first_question, subject, device, interface, model, problem, list_indice, indice):
     json_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "logs"))
     if os.path.exists(json_path):
         if os.path.isfile(os.path.join(json_path, 'log.json')):
@@ -10,7 +10,6 @@ def log_chat(pattern, context, subcontext, response,first_question, subject, dev
                 log.append({
                     "pattern": pattern,
                     "context": context,
-                    "subcontext": subcontext,
                     "response": response,
                     "first_question": first_question,
                     "subject": subject,
@@ -28,7 +27,6 @@ def log_chat(pattern, context, subcontext, response,first_question, subject, dev
                 log = [{
                     "pattern": pattern,
                     "context": context,
-                    "subcontext": subcontext,
                     "response": response,
                     "first_question": first_question,
                     "subject": subject,
