@@ -71,7 +71,10 @@ async function addMessage() {
     textUser[textUser.length - 1].style.animation = "popUp .3s ease-in-out"
 
     // obtendo a resposta do servidor
-    sendMessage(userMessage).then((res) => {
+    message.addEventListener('submit', (e)=> {
+        e.preventDefault()
+    })
+    sendMessage(userMessage).then((res, e) => {
         
         newDiv =
         `
@@ -89,27 +92,47 @@ async function addMessage() {
 
         
         // adicionando efeito de typing na resposta do servidor
-        text = res
-        textArray = text.split("")
-        textBot = document.querySelectorAll(".text")
+        let text = res
+        // let textArray = text.split("")
+        // let texto = ""
+        // text.map((item, index) => {
+        //     if (index == text.length - 1) {
+        //         texto += item
+        //         return texto
+        //     }
+        //     return texto += item + '¬';
+        // })
+        // text = texto.split('¬')
+
         
-        textArray.forEach((letter, index) => {
-            setTimeout(() => {
-                textBot[textBot.length - 1].innerHTML += letter
-                textBot[textBot.length - 1].scrollIntoView()
-                if (textArray.length - 1 == index) {
-                    setTimeout(() => {
-                        document.querySelector('.cursor').remove()
-                        chatInput.style.opacity = "1"
-                        chatInput.style.pointerEvents = "all"
-                        chatInput.style.cursor = "text"
-                        message.focus()
-                    }, 1200)
-                }
-            }, 50 * index)
+        let textBot = document.querySelectorAll(".text")
+        let count = 0
+        text.forEach((letter, i) => {
+            let link = ''
+            let textArray = letter.text.split("")
+            
+            textArray.map((item, j) => {
+                
+                count += 1
+                setTimeout(() => {
+                    textBot[textBot.length - 1].innerHTML += item
+                    textBot[textBot.length - 1].scrollIntoView()
+                    if(textArray.length - 1 == j) {
+                        if ('link' in letter) {
+                        textBot[textBot.length - 1].innerHTML += `<br> <a href="${link}" target="_blank" class="pdf__link">Link para o pdf</a>.` + '<br>'+'<br>'
+                        }
+                        setTimeout(() => {
+                            document.querySelector('.cursor').remove()
+                            chatInput.style.opacity = "1"
+                            chatInput.style.pointerEvents = "all"
+                            chatInput.style.cursor = "text"
+                            message.focus()
+                        }, 1200)
+                    }
+                }, 30 * count)
+                
+            })
         })
-    }).then(() => { // habilitando o input novamente
-        
     })
 }
 
@@ -127,7 +150,6 @@ async function sendMessage(message) {
         })
         message.value = ""
         let res = await req.json()
-        
         return res
     } catch (error) {
         return `ERRO ${error}. Não foi possível conectar ao servidor.`

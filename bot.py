@@ -8,6 +8,7 @@ from preprocess import Tratamento
 from preprocess import Correlacao
 from random import choice
 from models.modelos_intencoes.modelo_suporte.get_intent import get_subject
+# from models.modelos_intencoes.modelo_suporte.get_intent import get_get_response_question
 from logs import log_chat
 
 def chatbot_run(input_user):
@@ -44,17 +45,25 @@ def chatbot_run(input_user):
                 log_chat.clear_log()
             response = get_response(intent_user, list_intents)
         else:
-            json_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "logs"))
-            if os.path.exists(json_path):
-                if os.path.isfile(os.path.join(json_path, 'log.json')):
-                    with open(os.path.join(json_path, 'log.json'), 'r', encoding='utf-8') as f:
-                        log = json.load(f)
+            # json_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "logs"))
+            # if os.path.exists(json_path):
+            #     if os.path.isfile(os.path.join('logs\\log.json')):
+            with open('logs\\log.json', 'r', encoding='utf-8') as f:
+                log = json.load(f)
+
+            # if context == "question_response":
+            #     user_question_response,subcontext,value_subcontext = get_get_response_question(log,input_user)
+            #     first_question=True
+            #     response,subject,device,interface,model,problem,first_question = get_subject(input_user,first_question,user_question_response,subcontext,value_subcontext)
 
             list_indice = 0
             indice = 0
-
-            response,subject,device,interface,model,problem,first_question = get_subject(input_user,first_question=True)
+            response,subject,device,interface,model,problem,first_question = get_subject(input_user)
             log_chat.log_chat(input_user,context,response,first_question,subject,device,interface,model,problem,list_indice,indice)
+    # if type(response) == list:
+    #     for i in response:
+    #         response = ' '.join(i)
+    response = [{"text":response}]
     return response
 
 # while True:

@@ -1,6 +1,6 @@
 import sys, os
 sys.path.append(os.path.abspath(os.path.join('..', 'Chatbot\\main')))
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS, cross_origin
 from bot import chatbot_run
 
@@ -14,10 +14,15 @@ def index():
     req = request.get_json()
     message = chatbot_run(req['message'])
     response = jsonify(message)
+    
     # response.headers.add('Access-Control-Allow-Origin', 'http://localhost:5500/')
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
     response.headers.add('Access-Control-Allow-Methods', 'POST')
     return response
+
+@app.route('/', methods=['GET'])
+def index2():
+    return render_template('index.html')
 
 if __name__ == '__main__':
     app.run(port=5000, debug=True)
