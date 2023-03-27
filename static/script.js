@@ -106,6 +106,7 @@ async function addMessage() {
 
         
         let textBot = document.querySelectorAll(".text")
+        let divBot = document.querySelectorAll(".bot__msg")
         let count = 0
         text.forEach((letter, i) => {
             let link = ''

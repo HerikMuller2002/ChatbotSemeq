@@ -17,7 +17,7 @@ def chatbot_run(input_user):
     with open("models\\modelos_intencoes\\censored\\intents.json",'r',encoding="UTF-8") as bd:
         list_censored = json.load(bd)
     censored,id = Correlacao.tf_idf(input_user,list_censored["intents"][0]["patterns"])
-    if censored > 0.3:
+    if censored > 0.2:
         list_response = list_censored["intents"][0]["responses"]
         response = choice(list_response)
     else:
@@ -45,12 +45,22 @@ def chatbot_run(input_user):
             if intent_user[0]['intent'] == 'bye':
                 log_chat.clear_log()
             response = get_response(intent_user, list_intents)
+        elif context == "casual":
+            with open("models\\modelos_intencoes\\modelo_casual\\intents.json",'r',encoding="UTF-8") as bd:
+                list_intents = json.load(bd)
+            model_path = "models\\modelos_intencoes\\modelo_casual\\model.h5"
+            words_path = "models\\modelos_intencoes\\modelo_casual\\words.pkl"
+            classes_path = "models\\modelos_intencoes\\modelo_casual\\classes.pkl"
+            intent_user = class_prediction(input_user, model_path,words_path,classes_path)
+            if intent_user[0]['intent'] == 'bye':
+                log_chat.clear_log()
+            response = get_response(intent_user, list_intents)
         else:
-            # json_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "logs"))
-            # if os.path.exists(json_path):
-            #     if os.path.isfile(os.path.join('logs\\log.json')):
-            with open('logs\\log.json', 'r', encoding='utf-8') as f:
-                log = json.load(f)
+            json_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "logs"))
+            if os.path.exists(json_path):
+                if os.path.isfile(os.path.join('logs\\log.json')):
+                    with open((json_path,'log.json'), 'r', encoding='utf-8') as f:
+                        log = json.load(f)
 
             # if context == "question_response":
             #     user_question_response,subcontext,value_subcontext = get_get_response_question(log,input_user)
@@ -65,7 +75,7 @@ def chatbot_run(input_user):
             response3 = 'interface - ' + str(interface)
             response4 = 'model - ' + str(model)
             response5 = 'problem - ' + str(problem)
-            log_chat.log_chat(input_user,context,response,subject,device,interface,model,problem)
+            # log_chat.log_chat(input_user,context,response,subject,device,interface,model,problem)
     # if type(response) == list:
     #     for i in response:
     #         response = ' '.join(i)
@@ -77,9 +87,5 @@ def chatbot_run(input_user):
 #     if input_user == 'cls':
 #         break
 #     else:
-#         a = chatbot_run(input_user)
-#         if type(a) == list:
-#             for i in a:
-#                 print(i)
-#         else:
-#             print(a)
+#         response = chatbot_run(input_user)
+#         print(response[0]['text'])
