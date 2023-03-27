@@ -8,22 +8,6 @@ import sys
 pai_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
 sys.path.insert(0,pai_path)
 
-def tf_idf(user_input, dataframe):
-    dataframe = dataframe.astype(str)
-    list_text_db = dataframe.to_numpy().flatten().tolist()
-    list_text_db.append(user_input)
-    tfidf = TfidfVectorizer()
-    list_text_db = list(filter(None, list_text_db))
-    palavras_vetorizadas = tfidf.fit_transform(list_text_db)
-    similaridade = cosine_similarity(palavras_vetorizadas[-1], palavras_vetorizadas)
-    vetor_similar = similaridade.flatten()
-    vetor_similar.sort()
-    vetor_similar = np.delete(vetor_similar, -1)
-    if vetor_similar.size == 0:
-        return 0, 0
-    vetor_encontrado = vetor_similar[-1]
-    indice_sentenca = np.where(similaridade == vetor_encontrado)[0][-1]
-    return vetor_encontrado, indice_sentenca
 
 def get_response_question(log_conversation,input_user):
     original_dict = log_conversation[-1]
@@ -126,7 +110,24 @@ def get_response_question(log_conversation,input_user):
 #     else:
 #         return input_user,{"verify_passar":False}
 
-def get_subject(input_user, first_question=True,user_question_response=False,subcontext=False,value_subcontext=False):
+def tf_idf(user_input, dataframe):
+    dataframe = dataframe.astype(str)
+    list_text_db = dataframe.to_numpy().flatten().tolist()
+    list_text_db.append(user_input)
+    tfidf = TfidfVectorizer()
+    list_text_db = list(filter(None, list_text_db))
+    palavras_vetorizadas = tfidf.fit_transform(list_text_db)
+    similaridade = cosine_similarity(palavras_vetorizadas[-1], palavras_vetorizadas)
+    vetor_similar = similaridade.flatten()
+    vetor_similar.sort()
+    vetor_similar = np.delete(vetor_similar, -1)
+    if vetor_similar.size == 0:
+        return 0, 0
+    vetor_encontrado = vetor_similar[-1]
+    indice_sentenca = np.where(similaridade == vetor_encontrado)[0][-1]
+    return vetor_encontrado, indice_sentenca
+
+def get_subject(input_user, first_question=True):
     # assunto
     df = pd.read_excel(f'{pai_path}\\database\\troubleshooting.xlsx')
     troubleshooting = df.groupby('subject')
@@ -140,48 +141,48 @@ def get_subject(input_user, first_question=True,user_question_response=False,sub
             vetor = vetor_encontrado
             linha = list_subject_df.iloc[indice_sentenca]
     subject = linha['subject']
-    # if vetor < 0.7:
-    #     # perguntas
-    #     df_questions = pd.read_excel(f'{pai_path}\\database\\question.xlsx')
-    #     list_response = []
-    #     if first_question:
-    #         first_question = "Estou com dificuldade de identificar seu problema na base de dados! Irei fazer algumas perguntas para que eu possa entender melhor ok!?"
-    #         list_response.append(first_question)
-    #         first_question = False
-    #         if vetor > 0.3:
-    #             df_moment1 = df_questions.loc[df_questions['subject'] == subject]
-    #             linha = df_moment1.iloc[indice_sentenca]
-    #             list_response.append(linha['subject_question'])
-    #             response = list_response
-    #             subject = False
-    #             device = False
-    #             interface = False
-    #             model = False
-    #             problem = False
-    #             return response, subject, device, interface, model, problem,first_question
-    #         if vetor < 0.3:
-    #             intro = "Qual dessas opções o seu problema melhor se enquadra?"
-    #             list_response.append(intro)
-    #             count = 0
-    #             for i in list_subject:
-    #                 count += 1
-    #                 i_subject = f'{count} - {i.capitalize()}'
-    #                 list_response.append(i_subject)
-    #             response = list_response
-    #             subject = False
-    #             device = False
-    #             interface = False
-    #             model = False
-    #             problem = False
-    #             return response, subject, device, interface, model, problem, first_question
-    # else:
-    response, device, interface, model, problem,first_question = get_device(input_user,df,subject,first_question)
-    response = f'assunto: {subject} , device: {device} , interface: {interface} , modelo: {model} , problema: {problem}'
-    return response, subject, device, interface, model, problem, first_question
+    if vetor < 0.7:
+        # perguntas
+        df_questions = pd.read_excel(f'{pai_path}\\database\\question.xlsx')
+        list_response = []
+        if first_question:
+            first_question = "Estou com dificuldade de identificar seu problema na base de dados! Irei fazer algumas perguntas para que eu possa entender melhor ok!?"
+            list_response.append(first_question)
+            first_question = False
+            if vetor > 0.3:
+                df_moment1 = df_questions.loc[df_questions['subject'] == subject]
+                linha = df_moment1.iloc[indice_sentenca]
+                list_response.append(linha['subject_question'])
+                response = list_response
+                subject = False
+                device = False
+                interface = False
+                model = False
+                problem = False
+                return response, subject, device, interface, model, problem,first_question
+            if vetor < 0.3:
+                intro = "Qual dessas opções o seu problema melhor se enquadra?"
+                list_response.append(intro)
+                count = 0
+                for i in list_subject:
+                    count += 1
+                    i_subject = f'{count} - {i.capitalize()}'
+                    list_response.append(i_subject)
+                response = list_response
+                subject = False
+                device = False
+                interface = False
+                model = False
+                problem = False
+                return response, subject, device, interface, model, problem, first_question
+    else:
+        response, device, interface, model, problem,first_question = get_device(input_user,df,subject,first_question)
+        return response, subject, device, interface, model, problem, first_question
 
 def get_device(input_user,df,subject,first_question):
     # device
     df_subject = df.loc[df['subject'] == subject]
+    print(df_subject)
     troubleshooting2 = df_subject.groupby('device')
     list_device = [i for i,j in troubleshooting2]
     vetor = 0
@@ -193,42 +194,42 @@ def get_device(input_user,df,subject,first_question):
             vetor = vetor_encontrado
             linha = list_device_df.iloc[indice_sentenca]
     device = linha['device']
-#     if vetor < 0.7:
-#         # perguntas
-#         df_questions = pd.read_excel(f'{pai_path}\\database\\question.xlsx')
-#         list_response = []
-#         if first_question:
-#             first_question = "Estou com dificuldade de identificar seu problema na base de dados! Irei fazer algumas perguntas para que eu possa entender melhor ok!?"
-#             list_response.append(first_question)
-#             first_question = False
-#         if vetor > 0.3:
-#             df_moment1 = df_questions.loc[df_questions['subject'] == subject]
-#             df_moment2 = df_moment1.loc[df_moment1['device'] == device]
-#             linha =  df_moment2.iloc[indice_sentenca]
-#             list_response.append(linha['device_question'])
-#             response = list_response
-#             device = False
-#             interface = False
-#             model = False
-#             problem = False
-#             return response, device, interface, model, problem,first_question
-#         else:
-#             intro = "Qual dessas opções o seu problema melhor se enquadra?"
-#             list_response.append(intro)
-#             count = 0
-#             for i in list_device:
-#                 count += 1
-#                 i_device = f'{count} - {i.capitalize()}'
-#                 list_response.append(i_device)
-#             response = list_response
-#             device = False
-#             interface = False
-#             model = False
-#             problem = False
-#             return response, device, interface, model, problem,first_question
-#     else:
-    response, interface, model, problem,first_question = get_interface(input_user,subject,df_subject,device,first_question)
-    return response, device, interface, model, problem,first_question
+    if vetor < 0.7:
+        # perguntas
+        df_questions = pd.read_excel(f'{pai_path}\\database\\question.xlsx')
+        list_response = []
+        if first_question:
+            first_question = "Estou com dificuldade de identificar seu problema na base de dados! Irei fazer algumas perguntas para que eu possa entender melhor ok!?"
+            list_response.append(first_question)
+            first_question = False
+        if vetor > 0.3:
+            df_moment1 = df_questions.loc[df_questions['subject'] == subject]
+            df_moment2 = df_moment1.loc[df_moment1['device'] == device]
+            linha =  df_moment2.iloc[indice_sentenca]
+            list_response.append(linha['device_question'])
+            response = list_response
+            device = False
+            interface = False
+            model = False
+            problem = False
+            return response, device, interface, model, problem,first_question
+        else:
+            intro = "Qual dessas opções o seu problema melhor se enquadra?"
+            list_response.append(intro)
+            count = 0
+            for i in list_device:
+                count += 1
+                i_device = f'{count} - {i.capitalize()}'
+                list_response.append(i_device)
+            response = list_response
+            device = False
+            interface = False
+            model = False
+            problem = False
+            return response, device, interface, model, problem,first_question
+    else:
+        response, interface, model, problem,first_question = get_interface(input_user,subject,df_subject,device,first_question)
+        return response, device, interface, model, problem,first_question
 
 def get_interface(input_user,subject,df_subject,device,first_question):
     # interface
@@ -244,43 +245,43 @@ def get_interface(input_user,subject,df_subject,device,first_question):
             vetor = vetor_encontrado
             linha = list_interface_df.iloc[indice_sentenca]
     interface = linha['interface']
-#     if vetor < 0.7:
-#         # perguntas
-#         df_questions = pd.read_excel(f'{pai_path}\\database\\question.xlsx')
-#         list_response = []
-#         if first_question:
-#             first_question = "Estou com dificuldade de identificar seu problema na base de dados! Irei fazer algumas perguntas para que eu possa entender melhor ok!?"
-#             list_response.append(first_question)
-#             first_question = False
-#         if vetor > 0.3:
-#             df_moment1 = df_questions.loc[df_questions['subject'] == subject]
-#             df_moment2 = df_moment1.loc[df_moment1['device'] == device]
-#             df_moment3 = df_moment2.loc[df_moment2['interface'] == interface]
-#             linha = df_moment3.iloc[indice_sentenca]
-#             list_response.append(linha['interface_question'])
-#             response = list_response
-#             interface = False
-#             model = False
-#             problem = False
-#             return response, interface, model, problem,first_question
-#         else:
-#             intro = "Qual dessas opções o seu problema melhor se enquadra?"
-#             list_response.append(intro)
-#             count = 0
-#             for i in list_interface:
-#                 count += 1
-#                 i_interface = f'{count} - {i.capitalize()}'
-#                 list_response.append(i_interface)
-#             response = list_response
-#             interface = False
-#             model = False
-#             problem = False
-#             return response, interface, model, problem,first_question
-#     else:
-    response, model, problem,first_question = get_model(input_user,subject,df_subject,device,df_device,interface,first_question)
-    return response, interface, model, problem,first_question
+    if vetor < 0.7:
+        # perguntas
+        df_questions = pd.read_excel(f'{pai_path}\\database\\question.xlsx')
+        list_response = []
+        if first_question:
+            first_question = "Estou com dificuldade de identificar seu problema na base de dados! Irei fazer algumas perguntas para que eu possa entender melhor ok!?"
+            list_response.append(first_question)
+            first_question = False
+        if vetor > 0.3:
+            df_moment1 = df_questions.loc[df_questions['subject'] == subject]
+            df_moment2 = df_moment1.loc[df_moment1['device'] == device]
+            df_moment3 = df_moment2.loc[df_moment2['interface'] == interface]
+            linha = df_moment3.iloc[indice_sentenca]
+            list_response.append(linha['interface_question'])
+            response = list_response
+            interface = False
+            model = False
+            problem = False
+            return response, interface, model, problem,first_question
+        else:
+            intro = "Qual dessas opções o seu problema melhor se enquadra?"
+            list_response.append(intro)
+            count = 0
+            for i in list_interface:
+                count += 1
+                i_interface = f'{count} - {i.capitalize()}'
+                list_response.append(i_interface)
+            response = list_response
+            interface = False
+            model = False
+            problem = False
+            return response, interface, model, problem,first_question
+    else:
+        response, model, problem,first_question = get_model(input_user,subject,device,df_device,interface,first_question)
+        return response, interface, model, problem,first_question
 
-def get_model(input_user,subject,df_subject,device,df_device,interface,first_question):
+def get_model(input_user,subject,device,df_device,interface,first_question):
     # modelo
     df_interface = df_device.loc[df_device['interface'] == interface]
     troubleshooting4 = df_device.groupby('model')
@@ -294,40 +295,40 @@ def get_model(input_user,subject,df_subject,device,df_device,interface,first_que
             vetor = vetor_encontrado
             linha = list_model_df.iloc[indice_sentenca]
     model = linha['model']
-    # if vetor < 0.7:
-    #     # perguntas
-    #     df_questions = pd.read_excel(f'{pai_path}\\database\\question.xlsx')
-    #     list_response = []
-    #     if first_question:
-    #         first_question = "Estou com dificuldade de identificar seu problema na base de dados! Irei fazer algumas perguntas para que eu possa entender melhor ok!?"
-    #         list_response.append(first_question)
-    #         first_question = False
-    #     if vetor > 0.3:
-    #         df_moment1 = df_questions.loc[df_questions['subject'] == subject]
-    #         df_moment2 = df_moment1.loc[df_moment1['device'] == device]
-    #         df_moment3 = df_moment2.loc[df_moment2['interface'] == interface]
-    #         df_moment4 = df_moment3.loc[df_moment3['model'] == model]
-    #         linha = df_moment4.iloc[indice_sentenca]
-    #         list_response.append(linha['model_question'])
-    #         response = list_response
-    #         model = False
-    #         problem = False
-    #         return response, model, problem,first_question
-    #     else:
-    #         intro = "Qual dessas opções o seu problema melhor se enquadra?"
-    #         list_response.append(intro)
-    #         count = 0
-    #         for i in list_model:
-    #             count += 1
-    #             i_model = f'{count} - {i.capitalize()}'
-    #             list_response.append(i_model)
-    #         response = list_response
-    #         model = False
-    #         problem = False
-    #         return response, model, problem,first_question
-    # else:
-    response,problem,first_question = get_problem(input_user,subject,device,interface,df_interface,model,first_question)
-    return response, model, problem,first_question
+    if vetor < 0.7:
+        # perguntas
+        df_questions = pd.read_excel(f'{pai_path}\\database\\question.xlsx')
+        list_response = []
+        if first_question:
+            first_question = "Estou com dificuldade de identificar seu problema na base de dados! Irei fazer algumas perguntas para que eu possa entender melhor ok!?"
+            list_response.append(first_question)
+            first_question = False
+        if vetor > 0.3:
+            df_moment1 = df_questions.loc[df_questions['subject'] == subject]
+            df_moment2 = df_moment1.loc[df_moment1['device'] == device]
+            df_moment3 = df_moment2.loc[df_moment2['interface'] == interface]
+            df_moment4 = df_moment3.loc[df_moment3['model'] == model]
+            linha = df_moment4.iloc[indice_sentenca]
+            list_response.append(linha['model_question'])
+            response = list_response
+            model = False
+            problem = False
+            return response, model, problem,first_question
+        else:
+            intro = "Qual dessas opções o seu problema melhor se enquadra?"
+            list_response.append(intro)
+            count = 0
+            for i in list_model:
+                count += 1
+                i_model = f'{count} - {i.capitalize()}'
+                list_response.append(i_model)
+            response = list_response
+            model = False
+            problem = False
+            return response, model, problem,first_question
+    else:
+        response,problem,first_question = get_problem(input_user,subject,device,interface,df_interface,model,first_question)
+        return response, model, problem,first_question
 
 def get_problem(input_user,subject,device,interface,df_interface,model,first_question):
     # problem
@@ -343,36 +344,45 @@ def get_problem(input_user,subject,device,interface,df_interface,model,first_que
             vetor = vetor_encontrado
             linha = list_problem_df.iloc[indice_sentenca]
     problem = linha['problem']
-    # if vetor < 0.7:
-    #     # perguntas
-    #     df_questions = pd.read_excel(f'{pai_path}\\database\\question.xlsx')
-    #     list_response = []
-    #     if first_question:
-    #         first_question = "Estou com dificuldade de identificar seu problema na base de dados! Irei fazer algumas perguntas para que eu possa entender melhor ok!?"
-    #         list_response.append(first_question)
-    #         first_question = False
-    #     if vetor > 0.3:
-    #         df_moment1 = df_questions.loc[df_questions['subject'] == subject]
-    #         df_moment2 = df_moment1.loc[df_moment1['device'] == device]
-    #         df_moment3 = df_moment2.loc[df_moment2['interface'] == interface]
-    #         df_moment4 = df_moment3.loc[df_moment3['model'] == model]
-    #         df_moment5 = df_moment4.loc[df_moment4['problem'] == problem]
-    #         linha = df_moment5.iloc[indice_sentenca]
-    #         list_response.append(linha['problem_question'])
-    #         response = list_response
-    #         problem = False
-    #         return response, problem,first_question
-    #     else:
-    #         intro = "Qual dessas opções o seu problema melhor se enquadra?"
-    #         list_response.append(intro)
-    #         count = 0
-    #         for i in list_problem:
-    #             count += 1
-    #             i_problem = f'{count} - {i.capitalize()}'
-    #             list_response.append(i_problem)
-    #         response = list_response
-    #         problem = False
-    #         return response, problem,first_question
-    # else:
-    response = problem
-    return response, problem,first_question
+    if vetor < 0.7:
+        # perguntas
+        df_questions = pd.read_excel(f'{pai_path}\\database\\question.xlsx')
+        list_response = []
+        if first_question:
+            first_question = "Estou com dificuldade de identificar seu problema na base de dados! Irei fazer algumas perguntas para que eu possa entender melhor ok!?"
+            list_response.append(first_question)
+            first_question = False
+        if vetor > 0.3:
+            df_moment1 = df_questions.loc[df_questions['subject'] == subject]
+            df_moment2 = df_moment1.loc[df_moment1['device'] == device]
+            df_moment3 = df_moment2.loc[df_moment2['interface'] == interface]
+            df_moment4 = df_moment3.loc[df_moment3['model'] == model]
+            df_moment5 = df_moment4.loc[df_moment4['problem'] == problem]
+            linha = df_moment5.iloc[indice_sentenca]
+            list_response.append(linha['problem_question'])
+            response = list_response
+            problem = False
+            return response, problem,first_question
+        else:
+            intro = "Qual dessas opções o seu problema melhor se enquadra?"
+            list_response.append(intro)
+            count = 0
+            for i in list_problem:
+                count += 1
+                i_problem = f'{count} - {i.capitalize()}'
+                list_response.append(i_problem)
+            response = list_response
+            problem = False
+            return response, problem,first_question
+    else:
+        response = problem
+        return response, problem,first_question
+    
+
+# while True:
+#     input_user = input(": ")
+#     if input_user == 'cls':
+#         break
+#     else:
+#         response = get_subject(input_user)
+#         # print(response)
