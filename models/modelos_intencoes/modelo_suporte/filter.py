@@ -17,19 +17,12 @@ df = pd.read_excel(f'{pai_path}\\database\\troubleshooting.xlsx')
 def get_solution(input_user):
     # assunto
     subject = match_subject(input_user)
-    print(subject)
-    print()
     device = match_device(input_user,subject[0]['subject'])
-    print(device)
-    print()
     interface = match_interface(input_user,subject[0]['subject'],device[0]['device'])
-    print(interface)
-    print()
     model = match_model(input_user,subject[0]['subject'],device[0]['device'],interface[0]['interface'])
-    print(model)
-    print()
     problem = match_problem(input_user,subject[0]['subject'],device[0]['device'],interface[0]['interface'],model[0]['model'])
-    print(problem)
+
+    return subject[0]['subject'],device[0]['device'],interface[0]['interface'],model[0]['model'],problem[0]['problem']
 
 ###################################################
 def preprocess_input(text):
@@ -214,12 +207,3 @@ def match_problem(input_user,subject,device,interface,model):
         if len(dict_list) > 3:
             dict_list.pop()
     return dict_list
-
-
-
-
-
-
-a = input(": ")
-b = get_solution(a)
-# print(b)

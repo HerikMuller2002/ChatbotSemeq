@@ -8,6 +8,7 @@ from preprocess import Tratamento
 from preprocess import Correlacao
 from random import choice
 from models.modelos_intencoes.modelo_suporte.get_intent import get_subject
+from models.modelos_intencoes.modelo_suporte.filter import get_solution
 # from models.modelos_intencoes.modelo_suporte.get_intent import get_get_response_question
 from logs import log_chat
 
@@ -58,12 +59,17 @@ def chatbot_run(input_user):
 
             list_indice = 0
             indice = 0
-            response,subject,device,interface,model,problem,first_question = get_subject(input_user)
-            log_chat.log_chat(input_user,context,response,first_question,subject,device,interface,model,problem,list_indice,indice)
+            subject,device,interface,model,problem = get_solution(input_user)
+            response = 'assunto - ' + str(subject)
+            response2 = 'device - ' + str(device) 
+            response3 = 'interface - ' + str(interface)
+            response4 = 'model - ' + str(model)
+            response5 = 'problem - ' + str(problem)
+            log_chat.log_chat(input_user,context,response,subject,device,interface,model,problem)
     # if type(response) == list:
     #     for i in response:
     #         response = ' '.join(i)
-    response = [{"text":response}]
+    response = [{"text":response},{"text":response2},{"text":response3},{"text":response4},{"text":response5}]
     return response
 
 # while True:

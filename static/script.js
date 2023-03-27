@@ -118,6 +118,7 @@ async function addMessage() {
                     textBot[textBot.length - 1].innerHTML += item
                     textBot[textBot.length - 1].scrollIntoView()
                     if(textArray.length - 1 == j) {
+                        textBot[textBot.length - 1].innerHTML += '<br>'
                         if ('link' in letter) {
                         textBot[textBot.length - 1].innerHTML += `<br> <a href="${link}" target="_blank" class="pdf__link">Link para o pdf</a>.` + '<br>'+'<br>'
                         }
@@ -150,6 +151,7 @@ async function sendMessage(message) {
         })
         message.value = ""
         let res = await req.json()
+        console.log(res)
         return res
     } catch (error) {
         return `ERRO ${error}. Não foi possível conectar ao servidor.`
