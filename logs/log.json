@@ -76,5 +76,31 @@
         "problem": "bateria baixa",
         "list_indice": 0,
         "indice": 0
+    },
+    {
+        "pattern": "mte",
+        "context": "solution",
+        "response": "assunto: coleta periodica off line , device: sistema online , interface: mte , modelo: smq945 , problema: bateria baixa",
+        "first_question": true,
+        "subject": "coleta periodica off line",
+        "device": "sistema online",
+        "interface": "mte",
+        "model": "smq945",
+        "problem": "bateria baixa",
+        "list_indice": 0,
+        "indice": 0
+    },
+    {
+        "pattern": "mte",
+        "context": "solution",
+        "response": "assunto: coleta periodica off line , device: sistema online , interface: mte , modelo: smq945 , problema: bateria baixa",
+        "first_question": true,
+        "subject": "coleta periodica off line",
+        "device": "sistema online",
+        "interface": "mte",
+        "model": "smq945",
+        "problem": "bateria baixa",
+        "list_indice": 0,
+        "indice": 0
     }
 ]
