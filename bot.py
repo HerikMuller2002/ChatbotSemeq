@@ -74,10 +74,10 @@ def chatbot_run(input_user):
     response = [{"text":response}]
     return response
 
-while True:
-    input_user = input(": ")
-    if input_user == 'cls':
-        break
-    else:
-        response = chatbot_run(input_user)
-        print(response[0]['text'])
+# while True:
+#     input_user = input(": ")
+#     if input_user == 'cls':
+#         break
+#     else:
+#         response = chatbot_run(input_user)
+#         print(response[0]['text'])

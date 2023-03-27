@@ -9,7 +9,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer # pip install scikit
 from sklearn.metrics.pairwise import cosine_similarity
 from nltk.stem import WordNetLemmatizer
 from spellchecker import SpellChecker
-
+download('wordnet')
 class Tratamento:
     # Função para pré-processar os textos para calculo de correlação
     def preprocess_model(text):

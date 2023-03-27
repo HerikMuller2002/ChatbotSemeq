@@ -140,6 +140,30 @@ body {
 }
 
 
+
+.chat__message__error {
+    animation: error .5s ease;
+    
+    transition: all .3s ease;
+}
+
+.chat__message__error span {
+    color: red;
+}
+
+@keyframes error {
+    0% {
+        background-color: #c5c5c5;
+    }
+    50% {
+        background-color: red;
+    }
+    100% {
+        background-color: #1C273C;
+    }
+}
+
+
 .chat__message__text__bot {
     position: relative;
     width: 100%;

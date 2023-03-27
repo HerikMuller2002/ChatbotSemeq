@@ -106,33 +106,51 @@ async function addMessage() {
 
         
         let textBot = document.querySelectorAll(".text")
+        let divBot = document.querySelectorAll(".bot__msg")
         let count = 0
-        text.forEach((letter, i) => {
-            let link = ''
-            let textArray = letter.text.split("")
-            
-            textArray.map((item, j) => {
+        try {
+            text.forEach((letter, i) => {
+                let link = ''
+                let textArray = letter.text.split("")
                 
-                count += 1
-                setTimeout(() => {
-                    textBot[textBot.length - 1].innerHTML += item
-                    textBot[textBot.length - 1].scrollIntoView()
-                    if(textArray.length - 1 == j) {
-                        if ('link' in letter) {
-                        textBot[textBot.length - 1].innerHTML += `<br> <a href="${link}" target="_blank" class="pdf__link">Link para o pdf</a>.` + '<br>'+'<br>'
+                textArray.map((item, j) => {
+                    
+                    count += 1
+                    setTimeout(() => {
+                        textBot[textBot.length - 1].innerHTML += item
+                        textBot[textBot.length - 1].scrollIntoView()
+                        if(textArray.length - 1 == j) {
+                            if ('link' in letter) {
+                            textBot[textBot.length - 1].innerHTML += `<br> <a href="${link}" target="_blank" class="pdf__link">Link para o pdf</a>.` + '<br>'+'<br>'
+                            }
+                            setTimeout(() => {
+                                document.querySelector('.cursor').remove()
+                                chatInput.style.opacity = "1"
+                                chatInput.style.pointerEvents = "all"
+                                chatInput.style.cursor = "text"
+                                message.focus()
+                            }, 1200)
                         }
-                        setTimeout(() => {
-                            document.querySelector('.cursor').remove()
-                            chatInput.style.opacity = "1"
-                            chatInput.style.pointerEvents = "all"
-                            chatInput.style.cursor = "text"
-                            message.focus()
-                        }, 1200)
-                    }
-                }, 30 * count)
-                
+                    }, 30 * count)
+                    
+                })
             })
-        })
+        } catch (error) {
+            textBot[textBot.length - 1].innerHTML += 'ERRO: Não foi possível conectar ao servidor.'
+            divBot[divBot.length - 1].classList.add('chat__message__error')
+            textBot[textBot.length - 1].scrollIntoView()
+            
+            setTimeout(() => {
+                document.querySelector('.cursor').remove()
+                chatInput.style.opacity = "1"
+                chatInput.style.pointerEvents = "all"
+                chatInput.style.cursor = "text"
+                divBot[divBot.length - 1].style.animation = "none"
+                message.focus()
+            }, 1200)
+            throw(error)
+        }
+        
     })
 }
 
