@@ -63,16 +63,10 @@ def chatbot_run(input_user):
                 if os.path.isfile(os.path.join('logs\\log.json')):
                     with open((json_path,'log.json'), 'r', encoding='utf-8') as f:
                         log = json.load(f)
-            subject,device,interface,model,problem = get_solution(input_user)
-            response = [
-                'assunto - ' + str(subject),
-                'device - ' + str(device),
-                'interface - ' + str(interface),
-                'model - ' + str(model),
-                'problem - ' + str(problem)
-            ]
+            subject,device,interface,model,problem,response = get_solution(input_user)
             log_chat.log_chat(input_user,context,response,subject,device,interface,model,problem)
 
+    # response_bot = [{"link":"https://github.com/HerikMuller2002","text":"chablau"},{'text':'chablau 2'}]
     response_bot = []
     if type(response) == list:
         for i in response:

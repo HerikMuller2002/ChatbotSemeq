@@ -11,20 +11,6 @@ sys.path.insert(0,pai_path)
 
 df = pd.read_excel(f'{pai_path}\\database\\troubleshooting.xlsx')
 
-
-###################################################
-
-def get_solution(input_user):
-    # assunto
-    subject = match_subject(input_user)
-    device = match_device(input_user,subject[0]['subject'])
-    interface = match_interface(input_user,subject[0]['subject'],device[0]['device'])
-    model = match_model(input_user,subject[0]['subject'],device[0]['device'],interface[0]['interface'])
-    problem = match_problem(input_user,subject[0]['subject'],device[0]['device'],interface[0]['interface'],model[0]['model'])
-
-    return subject[0]['subject'],device[0]['device'],interface[0]['interface'],model[0]['model'],problem[0]['problem']
-
-###################################################
 def preprocess_input(text):
     text = text.lower().strip()
     # tirar pontuações, acentos e espaços extras
@@ -42,9 +28,9 @@ def preprocess_list(list_text):
             for new_text in new_texts:
                 new_list.append(new_text)
         else:
-            # new_texts = text.split()
-            # for new_text in new_texts:
-            #     new_list.append(new_text)
+            new_texts = text.split()
+            for new_text in new_texts:
+                new_list.append(new_text)
             new_list.append(text)
     return new_list
 
@@ -65,6 +51,8 @@ def tf_idf(user_input, dataframe):
     indice_sentenca = np.where(similaridade == vetor_encontrado)[0][-1]
     return vetor_encontrado, indice_sentenca
 
+###################################################
+
 def match_subject(input_user):
     troubleshooting = df.groupby('subject')
     list_subject = [i for i,j in troubleshooting]
@@ -77,16 +65,15 @@ def match_subject(input_user):
     dict_list = []
     # Percorrer vetores e índices correspondentes
     for i, vetor in enumerate(vetores):
-        if vetor > 0.5:
             # Encontrar subject correspondente
-            subject = list_subject[i]
-            # Adicionar dicionário na lista
-            dict_list.append({"vetor":vetor,"subject":subject})
+        subject = list_subject[i]
+        # Adicionar dicionário na lista
+        dict_list.append({"vetor":vetor,"subject":subject})
     if len(dict_list) == 0:
         dict_list = [{"vetor":0,"subject":False}]
     else:
         dict_list = sorted(dict_list, key=lambda x: x["vetor"], reverse=True)
-        if len(dict_list) > 3:
+        while len(dict_list) > 3:
             dict_list.pop()
     return dict_list
 
@@ -104,7 +91,7 @@ def match_device(input_user,subject):
     dict_list = []
     # Percorrer vetores e índices correspondentes
     for i, vetor in enumerate(vetores):
-        if vetor > 0.5:
+        if vetor > 0.7:
             # Encontrar subject correspondente
             device = list_device[i]
             
@@ -133,7 +120,7 @@ def match_interface(input_user,subject,device):
     dict_list = []
     # Percorrer vetores e índices correspondentes
     for i, vetor in enumerate(vetores):
-        if vetor > 0.5:
+        if vetor > 0.7:
             # Encontrar subject correspondente
             device = list_interface[i]
             
@@ -163,7 +150,7 @@ def match_model(input_user,subject,device,interface):
     dict_list = []
     # Percorrer vetores e índices correspondentes
     for i, vetor in enumerate(vetores):
-        if vetor > 0.5:
+        if vetor > 0.7:
             # Encontrar subject correspondente
             model = list_model[i]
             
@@ -194,7 +181,7 @@ def match_problem(input_user,subject,device,interface,model):
     dict_list = []
     # Percorrer vetores e índices correspondentes
     for i, vetor in enumerate(vetores):
-        if vetor > 0.5:
+        if vetor > 0.7:
             # Encontrar subject correspondente
             problem = list_problem[i]
             
@@ -207,3 +194,53 @@ def match_problem(input_user,subject,device,interface,model):
         if len(dict_list) > 3:
             dict_list.pop()
     return dict_list
+
+###################################################
+
+def get_solution(input_user):
+    # assunto
+    subject_dict = match_subject(input_user)
+    greater_than = [elemento for elemento in subject_dict if elemento['vetor'] > 0.7]
+    if subject_dict[0]['vetor'] < 0.7 or len(greater_than) > 1:
+        if len(greater_than) > 1:
+            df_question = pd.read_excel(f'{pai_path}\\database\\question.xlsx')
+            if len(greater_than) == 2:
+                question = sub("[_]", f"{greater_than[0]['subject']} ou {greater_than[1]['subject']}", df_question.loc[0,'question_doubt'])
+            elif len(greater_than) == 3:
+                question = sub("[_]", f"{greater_than[0]['subject']}, {greater_than[1]['subject']} ou {greater_than[2]['subject']}", df_question.loc[0,'question_doubt'])
+            question = question.split("?")
+            question = [x + "?" for x in question[:-1]] + [question[-1]]
+            # question.pop()
+            question[-2], question[-1] = question[-1], question[-2]
+            # question[-2] = 'https://github.com/HerikMuller2002'
+            return greater_than,False,False,False,False,question
+    else:
+        subject = subject_dict[0]['subject']
+        device_dict = match_device(input_user,subject_dict[0]['subject'])
+
+        greater_than = [elemento for elemento in device_dict if elemento['vetor'] > 0.7]
+        if device_dict[0]['vetor'] < 0.7 or len(greater_than) > 1:
+            return subject,device_dict[0]['device'],False,False,False
+        else:
+            device = device_dict[0]['device']
+            interface_dict = match_interface(input_user,subject_dict[0]['subject'],device_dict[0]['device'])
+
+            greater_than = [elemento for elemento in interface_dict if elemento['vetor'] > 0.7]
+            if interface_dict[0]['vetor'] < 0.7 or len(greater_than) > 1:
+                return subject,device,interface_dict[0]['interface'],False,False
+            else:
+                interface = interface_dict[0]['interface']
+                model_dict = match_model(input_user,subject_dict[0]['subject'],device_dict[0]['device'],interface_dict[0]['interface'])
+
+                greater_than = [elemento for elemento in model_dict if elemento['vetor'] > 0.7]
+                if model_dict[0]['vetor'] < 0.7 or len(greater_than) > 1:
+                    return subject,device,interface,model_dict[0]['model'],False
+                else:
+                    model = interface_dict[0]['interface']
+                    problem_dict = match_problem(input_user,subject_dict[0]['subject'],device_dict[0]['device'],interface_dict[0]['interface'],model_dict[0]['model'])
+
+                    greater_than = [elemento for elemento in problem_dict if elemento['vetor'] > 0.7]
+                    if problem_dict[0]['vetor'] < 0.7 or len(greater_than) > 1:
+                        return subject,device,interface,model,problem_dict[0]['problem']
+                    else:
+                        return subject_dict[0]['subject'],device_dict[0]['device'],interface_dict[0]['interface'],model_dict[0]['model'],problem_dict[0]['problem']

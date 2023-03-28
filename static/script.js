@@ -120,7 +120,7 @@ async function addMessage() {
                         textBot[textBot.length - 1].scrollIntoView()
                         if(textArray.length - 1 == j) {
                             if ('link' in letter) {
-                                textBot[textBot.length - 1].innerHTML += `<br> <a href="${link}" target="_blank" class="pdf__link">Link para o pdf</a>.` + '<br>'+'<br>'
+                                textBot[textBot.length - 1].innerHTML += `<br> <a href="${link}" target="_blank" class="pdf__link">Link para o pdf</a>.`
                             }
                             if(i == text.length - 1){
                                 setTimeout(() => {       
@@ -131,7 +131,7 @@ async function addMessage() {
                                     message.focus()
                                 }, 1200)
                             } else {
-                                textBot[textBot.length - 1].innerHTML += '<br>'
+                                textBot[textBot.length - 1].innerHTML += '<br>'+'<br>'
                             }
                         }
                     }, 30 * count)
@@ -171,6 +171,7 @@ async function sendMessage(message) {
         })
         message.value = ""
         let res = await req.json()
+        console.log(res)
         return res
     } catch (error) {
         return `ERRO ${error}. Não foi possível conectar ao servidor.`
