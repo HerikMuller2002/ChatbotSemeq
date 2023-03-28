@@ -13,6 +13,8 @@ from models.modelos_intencoes.modelo_suporte.filter import get_solution
 from logs import log_chat
 
 def chatbot_run(input_user):
+    if input_user == "clear":
+        log_chat.clear_log()
     input_user = Tratamento.preprocess_input(input_user)
     with open("models\\modelos_intencoes\\censored\\intents.json",'r',encoding="UTF-8") as bd:
         list_censored = json.load(bd)
@@ -61,31 +63,21 @@ def chatbot_run(input_user):
                 if os.path.isfile(os.path.join('logs\\log.json')):
                     with open((json_path,'log.json'), 'r', encoding='utf-8') as f:
                         log = json.load(f)
-
-            # if context == "question_response":
-            #     user_question_response,subcontext,value_subcontext = get_get_response_question(log,input_user)
-            #     first_question=True
-            #     response,subject,device,interface,model,problem,first_question = get_subject(input_user,first_question,user_question_response,subcontext,value_subcontext)
-
-            list_indice = 0
-            indice = 0
             subject,device,interface,model,problem = get_solution(input_user)
-            response = 'assunto - ' + str(subject)
-            response2 = 'device - ' + str(device) 
-            response3 = 'interface - ' + str(interface)
-            response4 = 'model - ' + str(model)
-            response5 = 'problem - ' + str(problem)
-            # log_chat.log_chat(input_user,context,response,subject,device,interface,model,problem)
-    # if type(response) == list:
-    #     for i in response:
-    #         response = ' '.join(i)
-    response = [{"text":response},{"text":response2},{"text":response3},{"text":response4},{"text":response5}]
-    return response
+            response = [
+                'assunto - ' + str(subject),
+                'device - ' + str(device),
+                'interface - ' + str(interface),
+                'model - ' + str(model),
+                'problem - ' + str(problem)
+            ]
+            log_chat.log_chat(input_user,context,response,subject,device,interface,model,problem)
 
-# while True:
-#     input_user = input(": ")
-#     if input_user == 'cls':
-#         break
-#     else:
-#         response = chatbot_run(input_user)
-#         print(response[0]['text'])
+    response_bot = []
+    if type(response) == list:
+        for i in response:
+            response_bot.append({"text":i})
+    else:
+        response_bot.append({"text":response})
+
+    return response_bot

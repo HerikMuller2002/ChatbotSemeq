@@ -114,17 +114,15 @@ async function addMessage() {
                 let textArray = letter.text.split("")
                 
                 textArray.map((item, j) => {
-                    
                     count += 1
                     setTimeout(() => {
                         textBot[textBot.length - 1].innerHTML += item
                         textBot[textBot.length - 1].scrollIntoView()
                         if(textArray.length - 1 == j) {
-                            textBot[textBot.length - 1].innerHTML += '<br>'
                             if ('link' in letter) {
-                            textBot[textBot.length - 1].innerHTML += `<br> <a href="${link}" target="_blank" class="pdf__link">Link para o pdf</a>.` + '<br>'+'<br>'
+                                textBot[textBot.length - 1].innerHTML += `<br> <a href="${link}" target="_blank" class="pdf__link">Link para o pdf</a>.` + '<br>'+'<br>'
                             }
-                            if(i == text.length - 1) {
+                            if(i == text.length - 1){
                                 setTimeout(() => {       
                                     document.querySelector('.cursor').remove()
                                     chatInput.style.opacity = "1"
@@ -132,6 +130,8 @@ async function addMessage() {
                                     chatInput.style.cursor = "text"
                                     message.focus()
                                 }, 1200)
+                            } else {
+                                textBot[textBot.length - 1].innerHTML += '<br>'
                             }
                         }
                     }, 30 * count)
@@ -176,3 +176,20 @@ async function sendMessage(message) {
         return `ERRO ${error}. Não foi possível conectar ao servidor.`
     }
 }
+
+// limpando log ao dar reload
+window.addEventListener("beforeunload", function() {
+    const userMessage = "clear";
+    const xhr = new XMLHttpRequest();
+    const url = "http://127.0.0.1:5000/test";
+    const params = JSON.stringify({ 'message': userMessage });
+  
+    xhr.open("POST", url, true);
+    xhr.setRequestHeader("Content-type", "application/json; charset=utf-8");
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState === 4 && xhr.status === 200) {
+        console.log(xhr.responseText);
+      }
+    };
+    xhr.send(params);
+  });
