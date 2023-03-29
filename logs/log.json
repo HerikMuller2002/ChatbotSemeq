@@ -1,1 +1,28 @@
-[]
+[
+    {
+        "pattern": "mte",
+        "context": "solution",
+        "response": [
+            "n\u00e3o tenho certeza se entendi corretamente. Voc\u00ea poderia confirmar se o problema que voc\u00ea est\u00e1 enfrentando \u00e9 sobre smq945?"
+        ],
+        "subject": "coleta periodica offline",
+        "device": "sistema online",
+        "interface": "mte",
+        "model": false,
+        "problem": false
+    },
+    {
+        "pattern": "sim",
+        "context": "question_response",
+        "response": [
+            "Desculpe, mas n\u00e3o consegui entender completamente. Voc\u00ea poderia me dizer qual dessas op\u00e7\u00f5es melhor descreve o seu problema?",
+            "1-Coleta periodica offline, 2-Infraestrutura, 3-Mysemeq, 4-Portal, 5-Sistema online",
+            " Por favor, digite o n\u00famero correspondente \u00e0 op\u00e7\u00e3o que melhor se aplica ao seu problema."
+        ],
+        "subject": "coleta periodica offline",
+        "device": false,
+        "interface": false,
+        "model": false,
+        "problem": false
+    }
+]

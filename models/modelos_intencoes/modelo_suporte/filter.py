@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import os
 import sys
+from json import load
 from regex import sub
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -34,7 +35,8 @@ def preprocess_list(list_text):
             new_list.append(text)
     return new_list
 
-def tf_idf(user_input, dataframe):
+def tf_idf(user_input, dados):
+    dataframe = dados
     dataframe = dataframe.astype(str)
     list_text_db = dataframe.to_numpy().flatten().tolist()
     list_text_db = preprocess_list(list_text_db)
@@ -238,13 +240,32 @@ def get_question(level_dict,list_level):
         question = False
     return question
 
+def get_response_question(input_user):
+    if os.path.isfile(os.path.join(pai_path,'logs\\log.json')):
+        with open(('logs\\log.json'), 'r', encoding='utf-8') as log_chat:
+            log = load(log_chat)
+        df_question = pd.read_excel(f'{pai_path}\\database\\question.xlsx')
+        question = ' '.join(log[-1]['response'])
+        vetor = 0
+        for i in df_question.columns:
+            text_list = [str(j) for j in df_question[i].dropna().tolist() if not isinstance(j, bool)]
+            vetor_encontrado = tf_idf(question,text_list)
+            if vetor_encontrado > vetor:
+                vetor = vetor_encontrado
+                context_question = i
+
+        # agora falta ler resposta do usuário
+        ...
+        
+    else:
+        response_user = False
+
 def get_solution(input_user):
     subject = False
     device = False
     interface = False
     model = False
     problem = False
-
     # assunto
     subject_dict,list_subject = match_subject(input_user)
     question = get_question(subject_dict,list_subject)
