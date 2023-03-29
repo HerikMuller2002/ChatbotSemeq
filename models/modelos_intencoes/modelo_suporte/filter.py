@@ -68,14 +68,14 @@ def match_subject(input_user):
             # Encontrar subject correspondente
         subject = list_subject[i]
         # Adicionar dicionário na lista
-        dict_list.append({"vetor":vetor,"subject":subject})
+        dict_list.append({"vetor":vetor,"level":subject})
     if len(dict_list) == 0:
-        dict_list = [{"vetor":0,"subject":False}]
+        dict_list = [{"vetor":0,"level":False}]
     else:
         dict_list = sorted(dict_list, key=lambda x: x["vetor"], reverse=True)
         while len(dict_list) > 3:
             dict_list.pop()
-    return dict_list
+    return dict_list,list_subject
 
 def match_device(input_user,subject):
     df_subject = df.loc[df['subject'] == subject]
@@ -96,14 +96,14 @@ def match_device(input_user,subject):
             device = list_device[i]
             
             # Adicionar dicionário na lista
-            dict_list.append({"vetor":vetor,"device":device})
+            dict_list.append({"vetor":vetor,"level":device})
     if len(dict_list) == 0:
-        dict_list = [{"vetor":0,"device":False}]
+        dict_list = [{"vetor":0,"level":False}]
     else:
         dict_list = sorted(dict_list, key=lambda x: x["vetor"], reverse=True)
         if len(dict_list) > 3:
             dict_list.pop()
-    return dict_list
+    return dict_list,list_device
 
 def match_interface(input_user,subject,device):
     df_subject = df.loc[df['subject'] == subject]
@@ -125,14 +125,14 @@ def match_interface(input_user,subject,device):
             device = list_interface[i]
             
             # Adicionar dicionário na lista
-            dict_list.append({"vetor":vetor,"interface":device})
+            dict_list.append({"vetor":vetor,"level":device})
     if len(dict_list) == 0:
-        dict_list = [{"vetor":0,"interface":False}]
+        dict_list = [{"vetor":0,"level":False}]
     else:
         dict_list = sorted(dict_list, key=lambda x: x["vetor"], reverse=True)
         if len(dict_list) > 3:
             dict_list.pop()
-    return dict_list
+    return dict_list,list_interface
 
 def match_model(input_user,subject,device,interface):
     df_subject = df.loc[df['subject'] == subject]
@@ -155,14 +155,14 @@ def match_model(input_user,subject,device,interface):
             model = list_model[i]
             
             # Adicionar dicionário na lista
-            dict_list.append({"vetor":vetor,"model":model})
+            dict_list.append({"vetor":vetor,"level":model})
     if len(dict_list) == 0:
-        dict_list = [{"vetor":0,"model":False}]
+        dict_list = [{"vetor":0,"level":False}]
     else:
         dict_list = sorted(dict_list, key=lambda x: x["vetor"], reverse=True)
         if len(dict_list) > 3:
             dict_list.pop()
-    return dict_list
+    return dict_list,list_model
 
 def match_problem(input_user,subject,device,interface,model):
     df_subject = df.loc[df['subject'] == subject]
@@ -186,61 +186,104 @@ def match_problem(input_user,subject,device,interface,model):
             problem = list_problem[i]
             
             # Adicionar dicionário na lista
-            dict_list.append({"vetor":vetor,"problem":problem})
+            dict_list.append({"vetor":vetor,"level":problem})
     if len(dict_list) == 0:
-        dict_list = [{"vetor":0,"problem":False}]
+        dict_list = [{"vetor":0,"level":False}]
     else:
         dict_list = sorted(dict_list, key=lambda x: x["vetor"], reverse=True)
         if len(dict_list) > 3:
             dict_list.pop()
-    return dict_list
+    return dict_list,list_problem
 
 ###################################################
 
-def get_solution(input_user):
-    # assunto
-    subject_dict = match_subject(input_user)
-    greater_than = [elemento for elemento in subject_dict if elemento['vetor'] > 0.7]
-    if subject_dict[0]['vetor'] < 0.7 or len(greater_than) > 1:
+def get_question(level_dict,list_level):
+    greater_than = [elemento for elemento in level_dict if elemento['vetor'] > 0.7]
+    if level_dict[0]['vetor'] < 0.7 or len(greater_than) > 1:
+        df_question = pd.read_excel(f'{pai_path}\\database\\question.xlsx')
         if len(greater_than) > 1:
-            df_question = pd.read_excel(f'{pai_path}\\database\\question.xlsx')
             if len(greater_than) == 2:
-                question = sub("[_]", f"{greater_than[0]['subject']} ou {greater_than[1]['subject']}", df_question.loc[0,'question_doubt'])
+                question = sub("[_]", f"{greater_than[0]['level']} ou {greater_than[1]['level']}", df_question.loc[0,'question_doubt'])
             elif len(greater_than) == 3:
-                question = sub("[_]", f"{greater_than[0]['subject']}, {greater_than[1]['subject']} ou {greater_than[2]['subject']}", df_question.loc[0,'question_doubt'])
+                question = sub("[_]", f"{greater_than[0]['level']}, {greater_than[1]['level']} ou {greater_than[2]['level']}", df_question.loc[0,'question_doubt'])
             question = question.split("?")
             question = [x + "?" for x in question[:-1]] + [question[-1]]
-            # question.pop()
-            question[-2], question[-1] = question[-1], question[-2]
-            # question[-2] = 'https://github.com/HerikMuller2002'
-            return greater_than,False,False,False,False,question
-    else:
-        subject = subject_dict[0]['subject']
-        device_dict = match_device(input_user,subject_dict[0]['subject'])
-
-        greater_than = [elemento for elemento in device_dict if elemento['vetor'] > 0.7]
-        if device_dict[0]['vetor'] < 0.7 or len(greater_than) > 1:
-            return subject,device_dict[0]['device'],False,False,False
+            question.pop()
+        elif level_dict[0]['vetor'] > 0.1:
+            question = sub("[_]", f"{level_dict[0]['level']}", df_question.loc[0,'question_uncertainty'])
+            question = question.split("?")
+            question = [x + "?" for x in question[:-1]] + [question[-1]]
+            question.pop()
         else:
-            device = device_dict[0]['device']
-            interface_dict = match_interface(input_user,subject_dict[0]['subject'],device_dict[0]['device'])
-
-            greater_than = [elemento for elemento in interface_dict if elemento['vetor'] > 0.7]
-            if interface_dict[0]['vetor'] < 0.7 or len(greater_than) > 1:
-                return subject,device,interface_dict[0]['interface'],False,False
+            if len(list_level) < 2:
+                question = sub("[_]", f"{list_level[0]}", df_question.loc[0,'question_uncertainty'])
+                question = question.split("?")
+                question = [x + "?" for x in question[:-1]] + [question[-1]]
+                question.pop()
             else:
-                interface = interface_dict[0]['interface']
-                model_dict = match_model(input_user,subject_dict[0]['subject'],device_dict[0]['device'],interface_dict[0]['interface'])
+                count = 0
+                dict_list_option = []
+                list_option = []
+                for i in list_level:
+                    count += 1
+                    text = f'{count}-{i.capitalize()}'
+                    dict_list_option.append({"opcao":count,"valor":i})
+                    list_option.append(text)
+                options = ", ".join(list_option)
+                question = df_question.loc[0,'question_options']
+                question = question.split("_")
+                question.append(options)
+                question[-2],question[-1] = question[-1], question[-2]
+    else:
+        question = False
+    return question
 
-                greater_than = [elemento for elemento in model_dict if elemento['vetor'] > 0.7]
-                if model_dict[0]['vetor'] < 0.7 or len(greater_than) > 1:
-                    return subject,device,interface,model_dict[0]['model'],False
+def get_solution(input_user):
+    subject = False
+    device = False
+    interface = False
+    model = False
+    problem = False
+
+    # assunto
+    subject_dict,list_subject = match_subject(input_user)
+    question = get_question(subject_dict,list_subject)
+    subject = subject_dict[0]['level']
+    if question:
+        response = question
+        return subject,device,interface,model,problem,response
+    else:
+        # device
+        device_dict,list_device = match_device(input_user,subject_dict[0]['level'])
+        question = get_question(device_dict,list_device)
+        device = device_dict[0]['level']
+        if question:
+            response = question
+            return subject,device,interface,model,problem,response
+        else:
+            # interface
+            interface_dict,list_interface = match_interface(input_user,subject_dict[0]['level'],device_dict[0]['level'])
+            question = get_question(interface_dict,list_interface)
+            interface = interface_dict[0]['level']
+            if question:
+                response = question
+                return subject,device,interface,model,problem,response
+            else:
+                # model
+                model_dict,list_model = match_model(input_user,subject_dict[0]['level'],device_dict[0]['level'],interface_dict[0]['level'])
+                question = get_question(model_dict,list_model)
+                model = model_dict[0]['level']
+                if question:
+                    response = question
+                    return subject,device,interface,model,problem,response
                 else:
-                    model = interface_dict[0]['interface']
-                    problem_dict = match_problem(input_user,subject_dict[0]['subject'],device_dict[0]['device'],interface_dict[0]['interface'],model_dict[0]['model'])
-
-                    greater_than = [elemento for elemento in problem_dict if elemento['vetor'] > 0.7]
-                    if problem_dict[0]['vetor'] < 0.7 or len(greater_than) > 1:
-                        return subject,device,interface,model,problem_dict[0]['problem']
+                    # problem
+                    problem_dict,list_problem = match_problem(input_user,subject_dict[0]['level'],device_dict[0]['level'],interface_dict[0]['level'],model_dict[0]['level'])
+                    question = get_question(problem_dict,list_problem)
+                    problem = problem_dict[0]['level']
+                    if question:
+                        response = question
+                        return subject,device,interface,model,problem,response
                     else:
-                        return subject_dict[0]['subject'],device_dict[0]['device'],interface_dict[0]['interface'],model_dict[0]['model'],problem_dict[0]['problem']
+                        response = problem
+                        return subject,device,interface,model,problem,response

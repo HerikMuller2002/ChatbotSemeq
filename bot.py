@@ -66,7 +66,6 @@ def chatbot_run(input_user):
             subject,device,interface,model,problem,response = get_solution(input_user)
             log_chat.log_chat(input_user,context,response,subject,device,interface,model,problem)
 
-    # response_bot = [{"link":"https://github.com/HerikMuller2002","text":"chablau"},{'text':'chablau 2'}]
     response_bot = []
     if type(response) == list:
         for i in response:
