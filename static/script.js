@@ -116,8 +116,14 @@ async function addMessage() {
                 textArray.map((item, j) => {
                     count += 1
                     setTimeout(() => {
-                        textBot[textBot.length - 1].innerHTML += item
-                        textBot[textBot.length - 1].scrollIntoView()
+                        if(item == '¬') {
+                            textBot[textBot.length - 1].innerHTML += '<br>'
+                            textBot[textBot.length - 1].scrollIntoView()
+                        } else {
+                            textBot[textBot.length - 1].innerHTML += item
+                            textBot[textBot.length - 1].scrollIntoView()
+                        }
+                        
                         if(textArray.length - 1 == j) {
                             if ('link' in letter) {
                                 textBot[textBot.length - 1].innerHTML += `<br> <a href="${link}" target="_blank" class="pdf__link">Link para o pdf</a>.`

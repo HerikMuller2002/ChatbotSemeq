@@ -1,15 +1,13 @@
-import os
 import json
 import pandas as pd
-import numpy as np
+import os
 from extract import class_prediction, get_response
-from keras.models import load_model
 from preprocess import Tratamento
 from preprocess import Correlacao
 from random import choice
-from models.modelos_intencoes.modelo_suporte.get_intent import get_subject
 from models.modelos_intencoes.modelo_suporte.filter import get_solution
-# from models.modelos_intencoes.modelo_suporte.get_intent import get_get_response_question
+from models.modelos_intencoes.modelo_suporte.filter import tf_idf
+from models.modelos_intencoes.modelo_suporte.filter import get_response_question
 from logs import log_chat
 
 def chatbot_run(input_user):
@@ -58,19 +56,71 @@ def chatbot_run(input_user):
                 log_chat.clear_log()
             response = get_response(intent_user, list_intents)
         else:
-            json_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "logs"))
-            if os.path.exists(json_path):
-                if os.path.isfile(os.path.join('logs\\log.json')):
-                    with open((json_path,'log.json'), 'r', encoding='utf-8') as f:
-                        log = json.load(f)
-            subject,device,interface,model,problem,response = get_solution(input_user)
-            log_chat.log_chat(input_user,context,response,subject,device,interface,model,problem)
-
+            if context == "question_response":
+                with open(('logs\\log.json'), 'r', encoding='utf-8') as f:
+                    log = json.load(f)
+                df_question = pd.read_excel(f'database\\question.xlsx')
+                question = ' '.join(log[-1]['response'])
+                vetor = 0
+                for i in df_question.columns:
+                    text_list = [str(j) for j in df_question[i].dropna().tolist() if not isinstance(j, bool)]
+                    vetor_encontrado,indice = tf_idf(question,text_list)
+                    if vetor_encontrado > vetor:
+                        vetor = vetor_encontrado
+                        context_question = i
+                if context_question in df_question.columns.tolist():
+                    input_user = get_response_question(input_user)
+                    try:
+                        subject = log[-1]["subject"]
+                        device = log[-1]["device"]
+                        interface = log[-1]["interface"]
+                        model = log[-1]["model"]
+                        problem = log[-1]["problem"]
+                    except TypeError:
+                        with open("models\\modelos_intencoes\\anything_else\\intents.json",'r',encoding="UTF-8") as bd:
+                            list_intents = json.load(bd)
+                        intent_user = [{"intent": "anything_else", "probability": 1.0}]
+                        response = get_response(intent_user, list_intents)
+                else:
+                    with open("models\\modelos_intencoes\\anything_else\\intents.json",'r',encoding="UTF-8") as bd:
+                        list_intents = json.load(bd)
+                    intent_user = [{"intent": "anything_else", "probability": 1.0}]
+                    response = get_response(intent_user, list_intents)
+            else:
+                try:
+                    subject = log[-1]["subject"]
+                except:
+                    subject = False
+                try:
+                    device = log[-1]["device"]
+                except:
+                    device = False
+                try:
+                    interface = log[-1]["interface"]
+                except:
+                    interface = False
+                try:
+                    model = log[-1]["model"]
+                except:
+                    model = False
+                try:
+                    problem = log[-1]["problem"]
+                except:
+                    problem = False
+            subject,device,interface,model,problem,response,opcoes = get_solution(input_user,subject,device,interface,model,problem)
+            log_chat.log(input_user,context,response,subject,device,interface,model,problem,opcoes)
     response_bot = []
     if type(response) == list:
         for i in response:
             response_bot.append({"text":i})
     else:
         response_bot.append({"text":response})
-
     return response_bot
+
+while True:
+    a = input(": ")
+    if a == "cls":
+        break
+    else:
+        b = chatbot_run(a)
+    print(b)
