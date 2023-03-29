@@ -8,10 +8,13 @@ from preprocess import Tratamento
 from preprocess import Correlacao
 from random import choice
 from models.modelos_intencoes.modelo_suporte.get_intent import get_subject
+from models.modelos_intencoes.modelo_suporte.filter import get_solution
 # from models.modelos_intencoes.modelo_suporte.get_intent import get_get_response_question
 from logs import log_chat
 
 def chatbot_run(input_user):
+    if input_user == "clear":
+        log_chat.clear_log()
     input_user = Tratamento.preprocess_input(input_user)
     with open("models\\modelos_intencoes\\censored\\intents.json",'r',encoding="UTF-8") as bd:
         list_censored = json.load(bd)
@@ -60,24 +63,14 @@ def chatbot_run(input_user):
                 if os.path.isfile(os.path.join('logs\\log.json')):
                     with open((json_path,'log.json'), 'r', encoding='utf-8') as f:
                         log = json.load(f)
+            subject,device,interface,model,problem,response = get_solution(input_user)
+            log_chat.log_chat(input_user,context,response,subject,device,interface,model,problem)
 
-            # if context == "question_response":
-            #     user_question_response,subcontext,value_subcontext = get_get_response_question(log,input_user)
-            #     first_question=True
-            #     response,subject,device,interface,model,problem,first_question = get_subject(input_user,first_question,user_question_response,subcontext,value_subcontext)
+    response_bot = []
+    if type(response) == list:
+        for i in response:
+            response_bot.append({"text":i})
+    else:
+        response_bot.append({"text":response})
 
-            list_indice = 0
-            indice = 0
-
-            response,subject,device,interface,model,problem,first_question = get_subject(input_user)
-            log_chat.log_chat(input_user,context,response,first_question,subject,device,interface,model,problem,list_indice,indice)
-    response = [{"text":response}]
-    return response
-
-# while True:
-#     input_user = input(": ")
-#     if input_user == 'cls':
-#         break
-#     else:
-#         response = chatbot_run(input_user)
-#         print(response[0]['text'])
+    return response_bot

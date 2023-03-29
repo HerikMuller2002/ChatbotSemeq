@@ -114,7 +114,6 @@ async function addMessage() {
                 let textArray = letter.text.split("")
                 
                 textArray.map((item, j) => {
-                    
                     count += 1
                     setTimeout(() => {
                         if (item == '¬') {
@@ -126,19 +125,23 @@ async function addMessage() {
                         
                         if(textArray.length - 1 == j) {
                             if ('link' in letter) {
-                            textBot[textBot.length - 1].innerHTML += `<br> <a href="${link}" target="_blank" class="pdf__link">Link para o pdf</a>.` + '<br>'+'<br>'
+                                textBot[textBot.length - 1].innerHTML += `<br> <a href="${link}" target="_blank" class="pdf__link">Link para o pdf</a>.`
                             }
-                            setTimeout(() => {
-                                document.querySelector('.cursor').remove()
-                                chatInput.style.opacity = "1"
-                                chatInput.style.pointerEvents = "all"
-                                chatInput.style.cursor = "text"
-                                message.focus()
-                            }, 1200)
+                            if(i == text.length - 1){
+                                setTimeout(() => {       
+                                    document.querySelector('.cursor').remove()
+                                    chatInput.style.opacity = "1"
+                                    chatInput.style.pointerEvents = "all"
+                                    chatInput.style.cursor = "text"
+                                    message.focus()
+                                }, 1200)
+                            } else {
+                                textBot[textBot.length - 1].innerHTML += '<br>'+'<br>'
+                            }
                         }
                     }, 30 * count)
-                    
                 })
+                
             })
         } catch (error) {
             textBot[textBot.length - 1].innerHTML += 'ERRO: Não foi possível conectar ao servidor.'
@@ -173,8 +176,26 @@ async function sendMessage(message) {
         })
         message.value = ""
         let res = await req.json()
+        console.log(res)
         return res
     } catch (error) {
         return `ERRO ${error}. Não foi possível conectar ao servidor.`
     }
 }
+
+// limpando log ao dar reload
+window.addEventListener("beforeunload", function() {
+    const userMessage = "clear";
+    const xhr = new XMLHttpRequest();
+    const url = "http://127.0.0.1:5000/test";
+    const params = JSON.stringify({ 'message': userMessage });
+  
+    xhr.open("POST", url, true);
+    xhr.setRequestHeader("Content-type", "application/json; charset=utf-8");
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState === 4 && xhr.status === 200) {
+        console.log(xhr.responseText);
+      }
+    };
+    xhr.send(params);
+  });
