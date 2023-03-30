@@ -190,8 +190,7 @@ def match_problem(input_user,subject,device,interface,model):
     for i, vetor in enumerate(vetores):
         if vetor > 0.7:
             # Encontrar subject correspondente
-            problem = list_problem[i]
-            
+            problem = list_problem[i] 
             # Adicionar dicionário na lista
             dict_list.append({"vetor":vetor,"level":problem})
     if len(dict_list) == 0:
@@ -228,14 +227,14 @@ def get_question(level_dict,list_level):
             question = question.split("?")
             question = [x + "?" for x in question[:-1]] + [question[-1]]
             question.pop()
-            dict_list_option = {"opcao":'1',"valor":level_dict[0]['level']}
+            dict_list_option = [{"opcao":'1',"valor":level_dict[0]['level']}]
         else:
             if len(list_level) == 1:
                 question = sub("[_]", f"{list_level[0]}", df_question.loc[0,'question_uncertainty'])
                 question = question.split("?")
                 question = [x + "?" for x in question[:-1]] + [question[-1]]
                 question.pop()
-                dict_list_option = {"opcao":'1',"valor":list_level[0]}
+                dict_list_option = [{"opcao":'1',"valor":list_level[0]}]
             else:
                 count = 0
                 dict_list_option = []
@@ -292,7 +291,7 @@ def get_response_question(input_user):
         column = get_column(input_user)
         if context_question == 'question_uncertainty':
             if column == 'pattern_positive':
-                context = log[-1]['opcoes']['valor']
+                context = log[-1]['opcoes'][0]['valor']
             response_user = context
         elif context_question == 'question_doubt':
             for i in log[-1]['opcoes']:
@@ -345,7 +344,7 @@ def get_solution(input_user,subject,device,interface,model,problem):
             response = question
             return subject,device,interface,model,problem,response,dict_list_option
         else:
-            model == False
+            model = False
     else:
         interface_dict = [{"vetor":1,"level":interface}]
     if not model:        
@@ -360,14 +359,14 @@ def get_solution(input_user,subject,device,interface,model,problem):
             problem = False
     else:
         model_dict = [{"vetor":1,"level":model}]
-    if not problem:
-        # problem
-        problem_dict,list_problem = match_problem(input_user,subject_dict[0]['level'],device_dict[0]['level'],interface_dict[0]['level'],model_dict[0]['level'])
-        question,dict_list_option = get_question(problem_dict,list_problem)
-        problem = problem_dict[0]['level']
-        if question:
-            response = question
-            return subject,device,interface,model,problem,response,dict_list_option
-        else:
-            response = problem
-            return subject,device,interface,model,problem,response,dict_list_option
+    # if not problem:
+    # problem
+    problem_dict,list_problem = match_problem(input_user,subject_dict[0]['level'],device_dict[0]['level'],interface_dict[0]['level'],model_dict[0]['level'])
+    question,dict_list_option = get_question(problem_dict,list_problem)
+    problem = problem_dict[0]['level']
+    if question:
+        response = question
+        return subject,device,interface,model,problem,response,dict_list_option
+    else:
+        response = problem
+        return subject,device,interface,model,problem,response,dict_list_option

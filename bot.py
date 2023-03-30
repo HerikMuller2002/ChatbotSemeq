@@ -56,9 +56,15 @@ def chatbot_run(input_user):
                 log_chat.clear_log()
             response = get_response(intent_user, list_intents)
         else:
-            if context == "question_response":
-                with open(('logs\\log.json'), 'r', encoding='utf-8') as f:
-                    log = json.load(f)
+            with open(('logs\\log.json'), 'r', encoding='utf-8') as f:
+                log = json.load(f)
+            try:
+                opcoes = [Tratamento.preprocess_input(i['valor']) for i in log[-1]['opcoes']]
+                opcoes = [elemento for lista_interna in opcoes for elemento in lista_interna]
+                verificacao_input = [i for i in input_user.split() if i in opcoes]
+            except:
+                verificacao_input = False
+            if context == "question_response" or verificacao_input:
                 df_question = pd.read_excel(f'database\\question.xlsx')
                 question = ' '.join(log[-1]['response'])
                 vetor = 0
@@ -116,11 +122,3 @@ def chatbot_run(input_user):
     else:
         response_bot.append({"text":response})
     return response_bot
-
-while True:
-    a = input(": ")
-    if a == "cls":
-        break
-    else:
-        b = chatbot_run(a)
-    print(b)
