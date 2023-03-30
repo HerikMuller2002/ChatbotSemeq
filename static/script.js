@@ -116,8 +116,9 @@ async function addMessage() {
                 textArray.map((item, j) => {
                     count += 1
                     setTimeout(() => {
-                        if (item == '¬') {
+                        if(item == '¬') {
                             textBot[textBot.length - 1].innerHTML += '<br>'
+                            textBot[textBot.length - 1].scrollIntoView()
                         } else {
                             textBot[textBot.length - 1].innerHTML += item
                             textBot[textBot.length - 1].scrollIntoView()

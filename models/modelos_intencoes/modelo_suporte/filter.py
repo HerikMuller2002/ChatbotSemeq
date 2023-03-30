@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import os
 import sys
+import re
 from json import load
 from regex import sub
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -36,9 +37,13 @@ def preprocess_list(list_text):
     return new_list
 
 def tf_idf(user_input, dados):
-    dataframe = dados
-    dataframe = dataframe.astype(str)
-    list_text_db = dataframe.to_numpy().flatten().tolist()
+    if isinstance(dados, pd.DataFrame):
+        dataframe = dados.astype(str)
+        list_text_db = dataframe.to_numpy().flatten().tolist()
+    elif isinstance(dados, list):
+        list_text_db = dados.copy()
+    else:
+        raise ValueError("Os dados precisam ser uma lista ou um DataFrame.")
     list_text_db = preprocess_list(list_text_db)
     list_text_db.append(user_input)
     tfidf = TfidfVectorizer()
@@ -185,8 +190,7 @@ def match_problem(input_user,subject,device,interface,model):
     for i, vetor in enumerate(vetores):
         if vetor > 0.7:
             # Encontrar subject correspondente
-            problem = list_problem[i]
-            
+            problem = list_problem[i] 
             # Adicionar dicionário na lista
             dict_list.append({"vetor":vetor,"level":problem})
     if len(dict_list) == 0:
@@ -211,17 +215,26 @@ def get_question(level_dict,list_level):
             question = question.split("?")
             question = [x + "?" for x in question[:-1]] + [question[-1]]
             question.pop()
+
+            dict_list_option = []
+            count = 0
+            for i in greater_than:
+                count += 1
+                dict_list_option.append({"opcao":str(count),"valor":i['level']})
+
         elif level_dict[0]['vetor'] > 0.1:
             question = sub("[_]", f"{level_dict[0]['level']}", df_question.loc[0,'question_uncertainty'])
             question = question.split("?")
             question = [x + "?" for x in question[:-1]] + [question[-1]]
             question.pop()
+            dict_list_option = [{"opcao":'1',"valor":level_dict[0]['level']}]
         else:
-            if len(list_level) < 2:
+            if len(list_level) == 1:
                 question = sub("[_]", f"{list_level[0]}", df_question.loc[0,'question_uncertainty'])
                 question = question.split("?")
                 question = [x + "?" for x in question[:-1]] + [question[-1]]
                 question.pop()
+                dict_list_option = [{"opcao":'1',"valor":list_level[0]}]
             else:
                 count = 0
                 dict_list_option = []
@@ -229,18 +242,39 @@ def get_question(level_dict,list_level):
                 for i in list_level:
                     count += 1
                     text = f'{count}-{i.capitalize()}'
-                    dict_list_option.append({"opcao":count,"valor":i})
+                    dict_list_option.append({"opcao":str(count),"valor":i})
                     list_option.append(text)
-                options = ", ".join(list_option)
+                options = "¬".join(list_option)
                 question = df_question.loc[0,'question_options']
                 question = question.split("_")
                 question.append(options)
                 question[-2],question[-1] = question[-1], question[-2]
     else:
         question = False
-    return question
+        dict_list_option = False
+    return question,dict_list_option
+
+###################################################
+
+# carrega o dataframe
+df_response = pd.read_excel(f'{pai_path}\\database\\respostas_perguntas.xlsx')
+
+# função para verificar em qual coluna o input tem maior similaridade
+def get_column(input_text):
+    df1 = df_response[['pattern_positive']]
+    df2 = df_response[['pattern_negative']]
+    similarity1,indice = tf_idf(input_text, df1)
+    similarity2,indice = tf_idf(input_text, df2)
+    if similarity1 > similarity2:
+        max_column = ' '.join(df1.columns)
+    elif similarity1 < similarity2:
+        max_column = ' '.join(df2.columns)
+    else:
+        max_column = False
+    return max_column
 
 def get_response_question(input_user):
+    # verificando qual era a pergunta
     if os.path.isfile(os.path.join(pai_path,'logs\\log.json')):
         with open(('logs\\log.json'), 'r', encoding='utf-8') as log_chat:
             log = load(log_chat)
@@ -249,62 +283,104 @@ def get_response_question(input_user):
         vetor = 0
         for i in df_question.columns:
             text_list = [str(j) for j in df_question[i].dropna().tolist() if not isinstance(j, bool)]
-            vetor_encontrado = tf_idf(question,text_list)
+            vetor_encontrado,indice = tf_idf(question,text_list)
             if vetor_encontrado > vetor:
                 vetor = vetor_encontrado
                 context_question = i
-
-        # agora falta ler resposta do usuário
-        ...
-        
+        # verificando se a resposta é sim ou não
+        column = get_column(input_user)
+        if context_question == 'question_uncertainty':
+            if column == 'pattern_positive':
+                context = log[-1]['opcoes'][0]['valor']
+            response_user = context
+        elif context_question == 'question_doubt':
+            for i in log[-1]['opcoes']:
+                if i['opcao'] == input_user or i['valor'] == input_user:
+                    response_user = i['valor']
+                else:
+                    response_user = False
+        else:
+            for i in log[-1]['opcoes']:
+                if i['opcao'] == input_user or i['valor'] == input_user:
+                    response_user = i['valor']
     else:
         response_user = False
+    try:
+        return response_user
+    except UnboundLocalError:
+        return False
 
-def get_solution(input_user):
-    subject = False
-    device = False
-    interface = False
-    model = False
-    problem = False
-    # assunto
-    subject_dict,list_subject = match_subject(input_user)
-    question = get_question(subject_dict,list_subject)
-    subject = subject_dict[0]['level']
-    if question:
-        response = question
-        return subject,device,interface,model,problem,response
+def get_solution(input_user,subject,device,interface,model,problem):
+    if not subject:
+        # assunto
+        subject_dict,list_subject = match_subject(input_user)
+        question,dict_list_option = get_question(subject_dict,list_subject)
+        subject = subject_dict[0]['level']
+        if question:
+            response = question
+            return subject,device,interface,model,problem,response,dict_list_option
+        else:
+            device = False
     else:
+        subject_dict = [{"vetor":1,"level":subject}]
+    if not device:
         # device
         device_dict,list_device = match_device(input_user,subject_dict[0]['level'])
-        question = get_question(device_dict,list_device)
+        question,dict_list_option = get_question(device_dict,list_device)
         device = device_dict[0]['level']
         if question:
             response = question
-            return subject,device,interface,model,problem,response
+            return subject,device,interface,model,problem,response,dict_list_option
         else:
-            # interface
-            interface_dict,list_interface = match_interface(input_user,subject_dict[0]['level'],device_dict[0]['level'])
-            question = get_question(interface_dict,list_interface)
-            interface = interface_dict[0]['level']
-            if question:
-                response = question
-                return subject,device,interface,model,problem,response
-            else:
-                # model
-                model_dict,list_model = match_model(input_user,subject_dict[0]['level'],device_dict[0]['level'],interface_dict[0]['level'])
-                question = get_question(model_dict,list_model)
-                model = model_dict[0]['level']
-                if question:
-                    response = question
-                    return subject,device,interface,model,problem,response
-                else:
-                    # problem
-                    problem_dict,list_problem = match_problem(input_user,subject_dict[0]['level'],device_dict[0]['level'],interface_dict[0]['level'],model_dict[0]['level'])
-                    question = get_question(problem_dict,list_problem)
-                    problem = problem_dict[0]['level']
-                    if question:
-                        response = question
-                        return subject,device,interface,model,problem,response
-                    else:
-                        response = problem
-                        return subject,device,interface,model,problem,response
+            interface = False
+    else:
+        device_dict = [{"vetor":1,"level":device}]
+    if not interface:
+        # interface
+        interface_dict,list_interface = match_interface(input_user,subject_dict[0]['level'],device_dict[0]['level'])
+        question,dict_list_option = get_question(interface_dict,list_interface)
+        interface = interface_dict[0]['level']
+        if question:
+            response = question
+            return subject,device,interface,model,problem,response,dict_list_option
+        else:
+            model = False
+    else:
+        interface_dict = [{"vetor":1,"level":interface}]
+    if not model:        
+        # model
+        model_dict,list_model = match_model(input_user,subject_dict[0]['level'],device_dict[0]['level'],interface_dict[0]['level'])
+        question,dict_list_option = get_question(model_dict,list_model)
+        model = model_dict[0]['level']
+        if question:
+            response = question
+            return subject,device,interface,model,problem,response,dict_list_option
+        else:
+            problem = False
+    else:
+        model_dict = [{"vetor":1,"level":model}]
+    # if not problem:
+    # problem
+    problem_dict,list_problem = match_problem(input_user,subject_dict[0]['level'],device_dict[0]['level'],interface_dict[0]['level'],model_dict[0]['level'])
+    question,dict_list_option = get_question(problem_dict,list_problem)
+    problem = problem_dict[0]['level']
+    if question:
+        response = question
+        return subject,device,interface,model,problem,response,dict_list_option
+    else:
+        response = []
+        list_response = ["Entendi, você está com o seguinte problema: _","Aqui está uma possível solução...","Caso o problema não seja resolvido, por favor, abra um chamado para o Service Desk da Semeq pelo e-mail servicedesk@semeq.com. Espero ter ajudado!"]
+        for i in list_response:
+            i = sub("[_]", f"{problem}", i)
+            response.append(i)
+            if "..." in i:
+                df_solution = pd.read_excel('database\\troubleshooting.xlsx')
+                solution = df_solution.loc[(df_solution['subject'] == subject) &
+                           (df_solution['device'] == device) &
+                           (df_solution['interface'] == interface) &
+                           (df_solution['model'] == model) &
+                           (df_solution['problem'] == problem),
+                           'solution'].iloc[0]
+                response.append(solution)
+
+        return subject,device,interface,model,problem,response,dict_list_option
