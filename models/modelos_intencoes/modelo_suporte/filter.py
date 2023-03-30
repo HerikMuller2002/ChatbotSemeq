@@ -85,8 +85,7 @@ def match_subject(input_user):
     return dict_list,list_subject
 
 def match_device(input_user,subject):
-    df_subject = df.loc[df['subject'] == subject]
-    df_subject = df_subject.drop('subject', axis=1)
+    df_subject = df.loc[df['subject'] == subject].drop('subject', axis=1)
     troubleshooting = df_subject.groupby('device')
     list_device = [i for i,j in troubleshooting]
     vetores = []
@@ -114,8 +113,7 @@ def match_device(input_user,subject):
 
 def match_interface(input_user,subject,device):
     df_subject = df.loc[df['subject'] == subject]
-    df_device = df_subject.loc[df_subject['device'] == device]
-    df_device = df_subject.drop(['subject','device'], axis=1)
+    df_device = df_subject.loc[df_subject['device'] == device].drop(['subject','device'], axis=1)
     troubleshooting = df_device.groupby('interface')
     list_interface = [i for i,j in troubleshooting]
     vetores = []
@@ -144,8 +142,7 @@ def match_interface(input_user,subject,device):
 def match_model(input_user,subject,device,interface):
     df_subject = df.loc[df['subject'] == subject]
     df_device = df_subject.loc[df_subject['device'] == device]
-    df_interface = df_device.loc[df_device['interface'] == interface]
-    df_interface = df_interface.drop(['subject','device','interface'], axis=1)
+    df_interface = df_device.loc[df_device['interface'] == interface].drop(['subject','device','interface'], axis=1)
     troubleshooting = df_interface.groupby('model')
     list_model = [i for i,j in troubleshooting]
     vetores = []
@@ -175,8 +172,7 @@ def match_problem(input_user,subject,device,interface,model):
     df_subject = df.loc[df['subject'] == subject]
     df_device = df_subject.loc[df_subject['device'] == device]
     df_interface = df_device.loc[df_device['interface'] == interface]
-    df_model = df_interface.loc[df_interface['model'] == model]
-    df_model = df_model.drop(['subject','device','interface','model'], axis=1)
+    df_model = df_interface.loc[df_interface['model'] == model].drop(['subject','device','interface','model'], axis=1)
     troubleshooting = df_model.groupby('problem')
     list_problem = [i for i,j in troubleshooting]
     vetores = []
@@ -204,54 +200,67 @@ def match_problem(input_user,subject,device,interface,model):
 ###################################################
 
 def get_question(level_dict,list_level):
-    greater_than = [elemento for elemento in level_dict if elemento['vetor'] > 0.7]
-    if level_dict[0]['vetor'] < 0.7 or len(greater_than) > 1:
-        df_question = pd.read_excel(f'{pai_path}\\database\\question.xlsx')
-        if len(greater_than) > 1:
-            if len(greater_than) == 2:
-                question = sub("[_]", f"{greater_than[0]['level']} ou {greater_than[1]['level']}", df_question.loc[0,'question_doubt'])
-            elif len(greater_than) == 3:
-                question = sub("[_]", f"{greater_than[0]['level']}, {greater_than[1]['level']} ou {greater_than[2]['level']}", df_question.loc[0,'question_doubt'])
-            question = question.split("?")
-            question = [x + "?" for x in question[:-1]] + [question[-1]]
-            question.pop()
-
-            dict_list_option = []
-            count = 0
-            for i in greater_than:
-                count += 1
-                dict_list_option.append({"opcao":str(count),"valor":i['level']})
-
-        elif level_dict[0]['vetor'] > 0.1:
-            question = sub("[_]", f"{level_dict[0]['level']}", df_question.loc[0,'question_uncertainty'])
-            question = question.split("?")
-            question = [x + "?" for x in question[:-1]] + [question[-1]]
-            question.pop()
-            dict_list_option = [{"opcao":'1',"valor":level_dict[0]['level']}]
-        else:
-            if len(list_level) == 1:
-                question = sub("[_]", f"{list_level[0]}", df_question.loc[0,'question_uncertainty'])
+    df_question = pd.read_excel(f'{pai_path}\\database\\question.xlsx')
+    if level_dict:
+        greater_than = [elemento for elemento in level_dict if elemento['vetor'] > 0.7]
+        if level_dict[0]['vetor'] < 0.7 or len(greater_than) > 1:
+            if len(greater_than) > 1:
+                if len(greater_than) == 2:
+                    question = sub("[_]", f"{greater_than[0]['level']} ou {greater_than[1]['level']}", df_question.loc[0,'question_doubt'])
+                elif len(greater_than) == 3:
+                    question = sub("[_]", f"{greater_than[0]['level']}, {greater_than[1]['level']} ou {greater_than[2]['level']}", df_question.loc[0,'question_doubt'])
                 question = question.split("?")
                 question = [x + "?" for x in question[:-1]] + [question[-1]]
                 question.pop()
-                dict_list_option = [{"opcao":'1',"valor":list_level[0]}]
-            else:
-                count = 0
                 dict_list_option = []
-                list_option = []
-                for i in list_level:
+                count = 0
+                for i in greater_than:
                     count += 1
-                    text = f'{count}-{i.capitalize()}'
-                    dict_list_option.append({"opcao":str(count),"valor":i})
-                    list_option.append(text)
-                options = "¬".join(list_option)
-                question = df_question.loc[0,'question_options']
-                question = question.split("_")
-                question.append(options)
-                question[-2],question[-1] = question[-1], question[-2]
+                    dict_list_option.append({"opcao":str(count),"valor":i['level']})
+            elif level_dict[0]['vetor'] > 0.1:
+                question = sub("[_]", f"{level_dict[0]['level']}", df_question.loc[0,'question_uncertainty'])
+                question = question.split("?")
+                question = [x + "?" for x in question[:-1]] + [question[-1]]
+                question.pop()
+                dict_list_option = [{"opcao":'1',"valor":level_dict[0]['level']}]
+            else:
+                if len(list_level) == 1:
+                    question = sub("[_]", f"{list_level[0]}", df_question.loc[0,'question_uncertainty'])
+                    question = question.split("?")
+                    question = [x + "?" for x in question[:-1]] + [question[-1]]
+                    question.pop()
+                    dict_list_option = [{"opcao":'1',"valor":list_level[0]}]
+                else:
+                    count = 0
+                    dict_list_option = []
+                    list_option = []
+                    for i in list_level:
+                        count += 1
+                        text = f'{count}-{i.capitalize()}'
+                        dict_list_option.append({"opcao":str(count),"valor":i})
+                        list_option.append(text)
+                    options = "¬".join(list_option)
+                    question = df_question.loc[0,'question_options']
+                    question = question.split("_")
+                    question.append(options)
+                    question[-2],question[-1] = question[-1], question[-2]
+        else:
+            question = False
+            dict_list_option = False
     else:
-        question = False
-        dict_list_option = False
+        count = 0
+        dict_list_option = []
+        list_option = []
+        for i in list_level:
+            count += 1
+            text = f'{count}-{i.capitalize()}'
+            dict_list_option.append({"opcao":str(count),"valor":i})
+            list_option.append(text)
+        options = "¬".join(list_option)
+        question = df_question.loc[0,'question_options']
+        question = question.split("_")
+        question.append(options)
+        question[-2],question[-1] = question[-1], question[-2]
     return question,dict_list_option
 
 ###################################################
@@ -291,8 +300,9 @@ def get_response_question(input_user):
         column = get_column(input_user)
         if context_question == 'question_uncertainty':
             if column == 'pattern_positive':
-                context = log[-1]['opcoes'][0]['valor']
-            response_user = context
+                response_user = log[-1]['opcoes'][0]['valor']
+            else:
+                response_user = False
         elif context_question == 'question_doubt':
             for i in log[-1]['opcoes']:
                 if i['opcao'] == input_user or i['valor'] == input_user:
@@ -303,6 +313,8 @@ def get_response_question(input_user):
             for i in log[-1]['opcoes']:
                 if i['opcao'] == input_user or i['valor'] == input_user:
                     response_user = i['valor']
+                else:
+                    response_user = False
     else:
         response_user = False
     try:
@@ -311,76 +323,148 @@ def get_response_question(input_user):
         return False
 
 def get_solution(input_user,subject,device,interface,model,problem):
-    if not subject:
-        # assunto
-        subject_dict,list_subject = match_subject(input_user)
-        question,dict_list_option = get_question(subject_dict,list_subject)
-        subject = subject_dict[0]['level']
-        if question:
-            response = question
-            return subject,device,interface,model,problem,response,dict_list_option
-        else:
-            device = False
-    else:
-        subject_dict = [{"vetor":1,"level":subject}]
-    if not device:
-        # device
-        device_dict,list_device = match_device(input_user,subject_dict[0]['level'])
-        question,dict_list_option = get_question(device_dict,list_device)
-        device = device_dict[0]['level']
-        if question:
-            response = question
-            return subject,device,interface,model,problem,response,dict_list_option
-        else:
-            interface = False
-    else:
-        device_dict = [{"vetor":1,"level":device}]
-    if not interface:
-        # interface
-        interface_dict,list_interface = match_interface(input_user,subject_dict[0]['level'],device_dict[0]['level'])
-        question,dict_list_option = get_question(interface_dict,list_interface)
-        interface = interface_dict[0]['level']
-        if question:
-            response = question
-            return subject,device,interface,model,problem,response,dict_list_option
-        else:
-            model = False
-    else:
-        interface_dict = [{"vetor":1,"level":interface}]
-    if not model:        
-        # model
-        model_dict,list_model = match_model(input_user,subject_dict[0]['level'],device_dict[0]['level'],interface_dict[0]['level'])
-        question,dict_list_option = get_question(model_dict,list_model)
-        model = model_dict[0]['level']
-        if question:
-            response = question
-            return subject,device,interface,model,problem,response,dict_list_option
-        else:
-            problem = False
-    else:
-        model_dict = [{"vetor":1,"level":model}]
-    # if not problem:
-    # problem
-    problem_dict,list_problem = match_problem(input_user,subject_dict[0]['level'],device_dict[0]['level'],interface_dict[0]['level'],model_dict[0]['level'])
-    question,dict_list_option = get_question(problem_dict,list_problem)
-    problem = problem_dict[0]['level']
-    if question:
-        response = question
-        return subject,device,interface,model,problem,response,dict_list_option
-    else:
-        response = []
-        list_response = ["Entendi, você está com o seguinte problema: _","Aqui está uma possível solução...","Caso o problema não seja resolvido, por favor, abra um chamado para o Service Desk da Semeq pelo e-mail servicedesk@semeq.com. Espero ter ajudado!"]
-        for i in list_response:
-            i = sub("[_]", f"{problem}", i)
-            response.append(i)
-            if "..." in i:
-                df_solution = pd.read_excel('database\\troubleshooting.xlsx')
-                solution = df_solution.loc[(df_solution['subject'] == subject) &
-                           (df_solution['device'] == device) &
-                           (df_solution['interface'] == interface) &
-                           (df_solution['model'] == model) &
-                           (df_solution['problem'] == problem),
-                           'solution'].iloc[0]
-                response.append(solution)
+    if not input_user:
+        with open(('logs\\log.json'), 'r', encoding='utf-8') as log_chat:
+            log = load(log_chat)
+        original_dict = log[-1]
+        new_dict = {
+            "subject": original_dict["subject"],
+            "device": original_dict["device"],
+            "interface": original_dict["interface"],
+            "model": original_dict["model"],
+            "problem": original_dict["problem"]
+            }
+        subcontext = None
+        for chave, valor in reversed(list(new_dict.items())):
+            if type(valor) == str:
+                subcontext = chave
+                value_subcontext = valor
+                break
+        if subcontext == 'subject':
+            troubleshooting = df.groupby('subject')
+            list_subject = [i for i,j in troubleshooting]
+            question,dict_list_option = get_question(False,list_subject)
 
-        return subject,device,interface,model,problem,response,dict_list_option
+            response = question
+            return subject,device,interface,model,problem,response,dict_list_option
+        
+        elif subcontext == 'device':
+            df_subject = df.loc[df['subject'] == subject]
+            df_subject = df_subject.drop('subject', axis=1)
+            troubleshooting = df_subject.groupby('device')
+            list_device = [i for i,j in troubleshooting]
+            question,dict_list_option = get_question(False,list_device)
+
+            response = question
+            return subject,device,interface,model,problem,response,dict_list_option
+        
+        elif subcontext == 'interface':
+            df_subject = df.loc[df['subject'] == subject]
+            df_device = df_subject.loc[df_subject['device'] == device]
+            df_device = df_subject.drop(['subject','device'], axis=1)
+            troubleshooting = df_device.groupby('interface')
+            list_interface = [i for i,j in troubleshooting]
+            question,dict_list_option = get_question(False,list_interface)
+
+            response = question
+            return subject,device,interface,model,problem,response,dict_list_option
+        
+        elif subcontext == 'model':
+            df_subject = df.loc[df['subject'] == subject]
+            df_device = df_subject.loc[df_subject['device'] == device]
+            df_interface = df_device.loc[df_device['interface'] == interface]
+            df_interface = df_interface.drop(['subject','device','interface'], axis=1)
+            troubleshooting = df_interface.groupby('model')
+            list_model = [i for i,j in troubleshooting]
+            question,dict_list_option = get_question(False,list_model)
+
+            response = question
+            return subject,device,interface,model,problem,response,dict_list_option
+        
+        elif subcontext == 'problem':
+            df_subject = df.loc[df['subject'] == subject]
+            df_device = df_subject.loc[df_subject['device'] == device]
+            df_interface = df_device.loc[df_device['interface'] == interface]
+            df_model = df_interface.loc[df_interface['model'] == model]
+            df_model = df_model.drop(['subject','device','interface','model'], axis=1)
+            troubleshooting = df_model.groupby('problem')
+            list_problem = [i for i,j in troubleshooting]
+            question,dict_list_option = get_question(False,list_problem)
+
+            response = question
+            return subject,device,interface,model,problem,response,dict_list_option
+    
+    else:
+        if not subject:
+            # assunto
+            subject_dict,list_subject = match_subject(input_user)
+            question,dict_list_option = get_question(subject_dict,list_subject)
+            subject = subject_dict[0]['level']
+            if question:
+                response = question
+                return subject,device,interface,model,problem,response,dict_list_option
+            else:
+                device = False
+        else:
+            subject_dict = [{"vetor":1,"level":subject}]
+        if not device:
+            # device
+            device_dict,list_device = match_device(input_user,subject_dict[0]['level'])
+            question,dict_list_option = get_question(device_dict,list_device)
+            device = device_dict[0]['level']
+            if question:
+                response = question
+                return subject,device,interface,model,problem,response,dict_list_option
+            else:
+                interface = False
+        else:
+            device_dict = [{"vetor":1,"level":device}]
+        if not interface:
+            # interface
+            interface_dict,list_interface = match_interface(input_user,subject_dict[0]['level'],device_dict[0]['level'])
+            question,dict_list_option = get_question(interface_dict,list_interface)
+            interface = interface_dict[0]['level']
+            if question:
+                response = question
+                return subject,device,interface,model,problem,response,dict_list_option
+            else:
+                model = False
+        else:
+            interface_dict = [{"vetor":1,"level":interface}]
+        if not model:        
+            # model
+            model_dict,list_model = match_model(input_user,subject_dict[0]['level'],device_dict[0]['level'],interface_dict[0]['level'])
+            question,dict_list_option = get_question(model_dict,list_model)
+            model = model_dict[0]['level']
+            if question:
+                response = question
+                return subject,device,interface,model,problem,response,dict_list_option
+            else:
+                problem = False
+        else:
+            model_dict = [{"vetor":1,"level":model}]
+        # if not problem:
+        # problem
+        problem_dict,list_problem = match_problem(input_user,subject_dict[0]['level'],device_dict[0]['level'],interface_dict[0]['level'],model_dict[0]['level'])
+        question,dict_list_option = get_question(problem_dict,list_problem)
+        problem = problem_dict[0]['level']
+        if question:
+            response = question
+            return subject,device,interface,model,problem,response,dict_list_option
+        else:
+            response = []
+            list_response = ["Entendi, você está com o seguinte problema: _","Aqui está uma possível solução...","Caso o problema não seja resolvido, por favor, abra um chamado para o Service Desk da Semeq pelo e-mail servicedesk@semeq.com. Espero ter ajudado!"]
+            for i in list_response:
+                i = sub("[_]", f"{problem}", i)
+                response.append(i)
+                if "..." in i:
+                    df_solution = pd.read_excel('database\\troubleshooting.xlsx')
+                    solution = df_solution.loc[(df_solution['subject'] == subject) &
+                            (df_solution['device'] == device) &
+                            (df_solution['interface'] == interface) &
+                            (df_solution['model'] == model) &
+                            (df_solution['problem'] == problem),
+                            'solution'].iloc[0]
+                    response.append(solution)
+
+            return subject,device,interface,model,problem,response,dict_list_option

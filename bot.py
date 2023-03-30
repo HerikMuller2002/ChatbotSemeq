@@ -35,6 +35,13 @@ def chatbot_run(input_user):
                 list_intents = json.load(bd)
             intent_user = [{"intent": "anything_else", "probability": 1.0}]
             response = get_response(intent_user, list_intents)
+
+        elif context == "unsolved":
+            with open("models\\modelos_intencoes\\unsolved\\intents.json",'r',encoding="UTF-8") as bd:
+                list_intents = json.load(bd)
+            intent_user = [{"intent": "unsolved", "probability": 1.0}]
+            response = get_response(intent_user, list_intents)
+
         elif context == "casual":
             with open("models\\modelos_intencoes\\modelo_casual\\intents.json",'r',encoding="UTF-8") as bd:
                 list_intents = json.load(bd)
@@ -45,6 +52,7 @@ def chatbot_run(input_user):
             if intent_user[0]['intent'] == 'bye':
                 log_chat.clear_log()
             response = get_response(intent_user, list_intents)
+
         elif context == "casual":
             with open("models\\modelos_intencoes\\modelo_casual\\intents.json",'r',encoding="UTF-8") as bd:
                 list_intents = json.load(bd)
@@ -55,16 +63,21 @@ def chatbot_run(input_user):
             if intent_user[0]['intent'] == 'bye':
                 log_chat.clear_log()
             response = get_response(intent_user, list_intents)
+
         else:
             with open(('logs\\log.json'), 'r', encoding='utf-8') as f:
                 log = json.load(f)
+
             try:
-                opcoes = [Tratamento.preprocess_input(i['valor']) for i in log[-1]['opcoes']]
-                opcoes = [elemento for lista_interna in opcoes for elemento in lista_interna]
-                verificacao_input = [i for i in input_user.split() if i in opcoes]
-            except:
+                verificacao = log[-1]['context']
+                if verificacao == "question_response" or verificacao == "solution":
+                    verificacao_input = True
+                else:
+                    verificacao_input = False
+            except IndexError:
                 verificacao_input = False
-            if context == "question_response" or verificacao_input:
+
+            if context == "question_response" and verificacao_input:
                 df_question = pd.read_excel(f'database\\question.xlsx')
                 question = ' '.join(log[-1]['response'])
                 vetor = 0
@@ -87,11 +100,37 @@ def chatbot_run(input_user):
                             list_intents = json.load(bd)
                         intent_user = [{"intent": "anything_else", "probability": 1.0}]
                         response = get_response(intent_user, list_intents)
+                        response_bot = []
+                        if type(response) == list:
+                            for i in response:
+                                response_bot.append({"text":i})
+                        else:
+                            response_bot.append({"text":response})
+                        return response_bot
                 else:
                     with open("models\\modelos_intencoes\\anything_else\\intents.json",'r',encoding="UTF-8") as bd:
                         list_intents = json.load(bd)
                     intent_user = [{"intent": "anything_else", "probability": 1.0}]
                     response = get_response(intent_user, list_intents)
+                    response_bot = []
+                    if type(response) == list:
+                        for i in response:
+                            response_bot.append({"text":i})
+                    else:
+                        response_bot.append({"text":response})
+                    return response_bot
+            elif context == "question_response" and not verificacao_input:
+                with open("models\\modelos_intencoes\\anything_else\\intents.json",'r',encoding="UTF-8") as bd:
+                    list_intents = json.load(bd)
+                intent_user = [{"intent": "anything_else", "probability": 1.0}]
+                response = get_response(intent_user, list_intents)
+                response_bot = []
+                if type(response) == list:
+                    for i in response:
+                        response_bot.append({"text":i})
+                else:
+                    response_bot.append({"text":response})
+                return response_bot
             else:
                 try:
                     subject = log[-1]["subject"]
@@ -113,8 +152,10 @@ def chatbot_run(input_user):
                     problem = log[-1]["problem"]
                 except:
                     problem = False
+
             subject,device,interface,model,problem,response,opcoes = get_solution(input_user,subject,device,interface,model,problem)
             log_chat.log(input_user,context,response,subject,device,interface,model,problem,opcoes)
+
     response_bot = []
     if type(response) == list:
         for i in response:

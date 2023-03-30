@@ -1,9 +1,0 @@
-{
-    "intents": [
-      {
-        "tag": "question",
-        "patterns": [],
-        "context": ["não consegui identificar o problema! O meu banco de dado é dividido em níveis, e para que eu possa entender melhor, irei fazer algumas perguntas para identificar o problema e encontrar a melhor solução, ok!?"]
-      }
-    ]
-  }
