@@ -176,7 +176,6 @@ async function sendMessage(message) {
         })
         message.value = ""
         let res = await req.json()
-        console.log(res)
         return res
     } catch (error) {
         return `ERRO ${error}. Não foi possível conectar ao servidor.`
