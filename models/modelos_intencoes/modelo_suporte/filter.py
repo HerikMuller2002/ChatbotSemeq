@@ -368,5 +368,19 @@ def get_solution(input_user,subject,device,interface,model,problem):
         response = question
         return subject,device,interface,model,problem,response,dict_list_option
     else:
-        response = problem
+        response = []
+        list_response = ["Entendi, você está com o seguinte problema: _","Aqui está uma possível solução...","Caso o problema não seja resolvido, por favor, abra um chamado para o Service Desk da Semeq pelo e-mail servicedesk@semeq.com. Espero ter ajudado!"]
+        for i in list_response:
+            i = sub("[_]", f"{problem}", i)
+            response.append(i)
+            if "..." in i:
+                df_solution = pd.read_excel('database\\troubleshooting.xlsx')
+                solution = df_solution.loc[(df_solution['subject'] == subject) &
+                           (df_solution['device'] == device) &
+                           (df_solution['interface'] == interface) &
+                           (df_solution['model'] == model) &
+                           (df_solution['problem'] == problem),
+                           'solution'].iloc[0]
+                response.append(solution)
+
         return subject,device,interface,model,problem,response,dict_list_option
