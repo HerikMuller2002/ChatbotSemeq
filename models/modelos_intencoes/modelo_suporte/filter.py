@@ -323,127 +323,127 @@ def get_response_question(input_user):
         return False
 
 def get_solution(input_user,subject,device,interface,model,problem):
-    if not input_user:
-        with open(('logs\\log.json'), 'r', encoding='utf-8') as log_chat:
-            log = load(log_chat)
-        original_dict = log[-1]
-        new_dict = {
-            "subject": original_dict["subject"],
-            "device": original_dict["device"],
-            "interface": original_dict["interface"],
-            "model": original_dict["model"],
-            "problem": original_dict["problem"]
-            }
-        subcontext = None
-        for chave, valor in reversed(list(new_dict.items())):
-            if type(valor) == str:
-                subcontext = chave
-                value_subcontext = valor
-                break
-        if subcontext == 'subject':
-            troubleshooting = df.groupby('subject')
-            list_subject = [i for i,j in troubleshooting]
-            question,dict_list_option = get_question(False,list_subject)
+    # if not input_user:
+    #     with open(('logs\\log.json'), 'r', encoding='utf-8') as log_chat:
+    #         log = load(log_chat)
+    #     original_dict = log[-1]
+    #     new_dict = {
+    #         "subject": original_dict["subject"],
+    #         "device": original_dict["device"],
+    #         "interface": original_dict["interface"],
+    #         "model": original_dict["model"],
+    #         "problem": original_dict["problem"]
+    #         }
+    #     subcontext = None
+    #     for chave, valor in reversed(list(new_dict.items())):
+    #         if type(valor) == str:
+    #             subcontext = chave
+    #             value_subcontext = valor
+    #             break
+    #     if subcontext == 'subject':
+    #         troubleshooting = df.groupby('subject')
+    #         list_subject = [i for i,j in troubleshooting]
+    #         question,dict_list_option = get_question(False,list_subject)
 
-            response = question
-            return subject,device,interface,model,problem,response,dict_list_option
+    #         response = question
+    #         return subject,device,interface,model,problem,response,dict_list_option
         
-        elif subcontext == 'device':
-            df_subject = df.loc[df['subject'] == subject]
-            df_subject = df_subject.drop('subject', axis=1)
-            troubleshooting = df_subject.groupby('device')
-            list_device = [i for i,j in troubleshooting]
-            question,dict_list_option = get_question(False,list_device)
+    #     elif subcontext == 'device':
+    #         df_subject = df.loc[df['subject'] == subject]
+    #         df_subject = df_subject.drop('subject', axis=1)
+    #         troubleshooting = df_subject.groupby('device')
+    #         list_device = [i for i,j in troubleshooting]
+    #         question,dict_list_option = get_question(False,list_device)
 
-            response = question
-            return subject,device,interface,model,problem,response,dict_list_option
+    #         response = question
+    #         return subject,device,interface,model,problem,response,dict_list_option
         
-        elif subcontext == 'interface':
-            df_subject = df.loc[df['subject'] == subject]
-            df_device = df_subject.loc[df_subject['device'] == device]
-            df_device = df_subject.drop(['subject','device'], axis=1)
-            troubleshooting = df_device.groupby('interface')
-            list_interface = [i for i,j in troubleshooting]
-            question,dict_list_option = get_question(False,list_interface)
+    #     elif subcontext == 'interface':
+    #         df_subject = df.loc[df['subject'] == subject]
+    #         df_device = df_subject.loc[df_subject['device'] == device]
+    #         df_device = df_subject.drop(['subject','device'], axis=1)
+    #         troubleshooting = df_device.groupby('interface')
+    #         list_interface = [i for i,j in troubleshooting]
+    #         question,dict_list_option = get_question(False,list_interface)
 
-            response = question
-            return subject,device,interface,model,problem,response,dict_list_option
+    #         response = question
+    #         return subject,device,interface,model,problem,response,dict_list_option
         
-        elif subcontext == 'model':
-            df_subject = df.loc[df['subject'] == subject]
-            df_device = df_subject.loc[df_subject['device'] == device]
-            df_interface = df_device.loc[df_device['interface'] == interface]
-            df_interface = df_interface.drop(['subject','device','interface'], axis=1)
-            troubleshooting = df_interface.groupby('model')
-            list_model = [i for i,j in troubleshooting]
-            question,dict_list_option = get_question(False,list_model)
+    #     elif subcontext == 'model':
+    #         df_subject = df.loc[df['subject'] == subject]
+    #         df_device = df_subject.loc[df_subject['device'] == device]
+    #         df_interface = df_device.loc[df_device['interface'] == interface]
+    #         df_interface = df_interface.drop(['subject','device','interface'], axis=1)
+    #         troubleshooting = df_interface.groupby('model')
+    #         list_model = [i for i,j in troubleshooting]
+    #         question,dict_list_option = get_question(False,list_model)
 
-            response = question
-            return subject,device,interface,model,problem,response,dict_list_option
+    #         response = question
+    #         return subject,device,interface,model,problem,response,dict_list_option
         
-        elif subcontext == 'problem':
-            df_subject = df.loc[df['subject'] == subject]
-            df_device = df_subject.loc[df_subject['device'] == device]
-            df_interface = df_device.loc[df_device['interface'] == interface]
-            df_model = df_interface.loc[df_interface['model'] == model]
-            df_model = df_model.drop(['subject','device','interface','model'], axis=1)
-            troubleshooting = df_model.groupby('problem')
-            list_problem = [i for i,j in troubleshooting]
-            question,dict_list_option = get_question(False,list_problem)
+    #     elif subcontext == 'problem':
+    #         df_subject = df.loc[df['subject'] == subject]
+    #         df_device = df_subject.loc[df_subject['device'] == device]
+    #         df_interface = df_device.loc[df_device['interface'] == interface]
+    #         df_model = df_interface.loc[df_interface['model'] == model]
+    #         df_model = df_model.drop(['subject','device','interface','model'], axis=1)
+    #         troubleshooting = df_model.groupby('problem')
+    #         list_problem = [i for i,j in troubleshooting]
+    #         question,dict_list_option = get_question(False,list_problem)
 
-            response = question
-            return subject,device,interface,model,problem,response,dict_list_option
+    #         response = question
+    #         return subject,device,interface,model,problem,response,dict_list_option
     
+    # else:
+    if not subject:
+        # assunto
+        subject_dict,list_subject = match_subject(input_user)
+        question,dict_list_option = get_question(subject_dict,list_subject)
+        subject = subject_dict[0]['level']
+        if question:
+            response = question
+            return subject,device,interface,model,problem,response,dict_list_option
+        else:
+            device = False
     else:
-        if not subject:
-            # assunto
-            subject_dict,list_subject = match_subject(input_user)
-            question,dict_list_option = get_question(subject_dict,list_subject)
-            subject = subject_dict[0]['level']
-            if question:
-                response = question
-                return subject,device,interface,model,problem,response,dict_list_option
-            else:
-                device = False
+        subject_dict = [{"vetor":1,"level":subject}]
+    if not device:
+        # device
+        device_dict,list_device = match_device(input_user,subject_dict[0]['level'])
+        question,dict_list_option = get_question(device_dict,list_device)
+        device = device_dict[0]['level']
+        if question:
+            response = question
+            return subject,device,interface,model,problem,response,dict_list_option
         else:
-            subject_dict = [{"vetor":1,"level":subject}]
-        if not device:
-            # device
-            device_dict,list_device = match_device(input_user,subject_dict[0]['level'])
-            question,dict_list_option = get_question(device_dict,list_device)
-            device = device_dict[0]['level']
-            if question:
-                response = question
-                return subject,device,interface,model,problem,response,dict_list_option
-            else:
-                interface = False
+            interface = False
+    else:
+        device_dict = [{"vetor":1,"level":device}]
+    if not interface:
+        # interface
+        interface_dict,list_interface = match_interface(input_user,subject_dict[0]['level'],device_dict[0]['level'])
+        question,dict_list_option = get_question(interface_dict,list_interface)
+        interface = interface_dict[0]['level']
+        if question:
+            response = question
+            return subject,device,interface,model,problem,response,dict_list_option
         else:
-            device_dict = [{"vetor":1,"level":device}]
-        if not interface:
-            # interface
-            interface_dict,list_interface = match_interface(input_user,subject_dict[0]['level'],device_dict[0]['level'])
-            question,dict_list_option = get_question(interface_dict,list_interface)
-            interface = interface_dict[0]['level']
-            if question:
-                response = question
-                return subject,device,interface,model,problem,response,dict_list_option
-            else:
-                model = False
+            model = False
+    else:
+        interface_dict = [{"vetor":1,"level":interface}]
+    if not model:        
+        # model
+        model_dict,list_model = match_model(input_user,subject_dict[0]['level'],device_dict[0]['level'],interface_dict[0]['level'])
+        question,dict_list_option = get_question(model_dict,list_model)
+        model = model_dict[0]['level']
+        if question:
+            response = question
+            return subject,device,interface,model,problem,response,dict_list_option
         else:
-            interface_dict = [{"vetor":1,"level":interface}]
-        if not model:        
-            # model
-            model_dict,list_model = match_model(input_user,subject_dict[0]['level'],device_dict[0]['level'],interface_dict[0]['level'])
-            question,dict_list_option = get_question(model_dict,list_model)
-            model = model_dict[0]['level']
-            if question:
-                response = question
-                return subject,device,interface,model,problem,response,dict_list_option
-            else:
-                problem = False
-        else:
-            model_dict = [{"vetor":1,"level":model}]
-        # if not problem:
+            problem = False
+    else:
+        model_dict = [{"vetor":1,"level":model}]
+    if not problem:
         # problem
         problem_dict,list_problem = match_problem(input_user,subject_dict[0]['level'],device_dict[0]['level'],interface_dict[0]['level'],model_dict[0]['level'])
         question,dict_list_option = get_question(problem_dict,list_problem)
@@ -467,3 +467,11 @@ def get_solution(input_user,subject,device,interface,model,problem):
                             'solution'].iloc[0]
                     response.append(solution)
             return subject,device,interface,model,problem,response,dict_list_option
+    else:
+        response = []
+        list_response = ["Entendi, você está com o seguinte problema: _","Aqui está uma possível solução...","Caso o problema não seja resolvido, por favor, abra um chamado para o Service Desk da Semeq pelo e-mail servicedesk@semeq.com. Espero ter ajudado!"]
+        for i in list_response:
+            i = sub("[_]", f"{problem}", i)
+            response.append(i)
+        dict_list_option = False
+        return subject,device,interface,model,problem,response,dict_list_option
