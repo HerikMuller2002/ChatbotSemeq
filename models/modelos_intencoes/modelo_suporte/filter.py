@@ -307,12 +307,15 @@ def get_response_question(input_user):
             for i in log[-1]['opcoes']:
                 if i['opcao'] == input_user or i['valor'] == input_user:
                     response_user = i['valor']
+                    break
                 else:
                     response_user = False
         else:
             for i in log[-1]['opcoes']:
                 if i['opcao'] == input_user or i['valor'] == input_user:
+                    print(i['valor'])
                     response_user = i['valor']
+                    break
                 else:
                     response_user = False
     else:
@@ -402,6 +405,7 @@ def get_solution(input_user,subject,device,interface,model,problem):
             subject = subject_dict[0]['level']
             if question:
                 response = question
+                # print('subject: ',subject,device,interface,model,problem,response,dict_list_option)
                 return subject,device,interface,model,problem,response,dict_list_option
             else:
                 device = False
@@ -414,6 +418,7 @@ def get_solution(input_user,subject,device,interface,model,problem):
             device = device_dict[0]['level']
             if question:
                 response = question
+                # print('device: ',subject,device,interface,model,problem,response,dict_list_option)
                 return subject,device,interface,model,problem,response,dict_list_option
             else:
                 interface = False
@@ -426,6 +431,7 @@ def get_solution(input_user,subject,device,interface,model,problem):
             interface = interface_dict[0]['level']
             if question:
                 response = question
+                # print('interface: ',subject,device,interface,model,problem,response,dict_list_option)
                 return subject,device,interface,model,problem,response,dict_list_option
             else:
                 model = False
@@ -438,33 +444,44 @@ def get_solution(input_user,subject,device,interface,model,problem):
             model = model_dict[0]['level']
             if question:
                 response = question
+                # print('model: ',subject,device,interface,model,problem,response,dict_list_option)
                 return subject,device,interface,model,problem,response,dict_list_option
             else:
                 problem = False
         else:
             model_dict = [{"vetor":1,"level":model}]
-        # if not problem:
-        # problem
-        problem_dict,list_problem = match_problem(input_user,subject_dict[0]['level'],device_dict[0]['level'],interface_dict[0]['level'],model_dict[0]['level'])
-        question,dict_list_option = get_question(problem_dict,list_problem)
-        problem = problem_dict[0]['level']
-        if question:
-            response = question
-            return subject,device,interface,model,problem,response,dict_list_option
+        if not problem:
+            # problem
+            problem_dict,list_problem = match_problem(input_user,subject_dict[0]['level'],device_dict[0]['level'],interface_dict[0]['level'],model_dict[0]['level'])
+            question,dict_list_option = get_question(problem_dict,list_problem)
+            problem = problem_dict[0]['level']
+            if question:
+                response = question
+                # print('problem1: ',subject,device,interface,model,problem,response,dict_list_option)
+                return subject,device,interface,model,problem,response,dict_list_option
+            else:
+                response = []
+                list_response = ["Entendi, você está com o seguinte problema: _","Aqui está uma possível solução...","Caso o problema não seja resolvido, por favor, abra um chamado para o Service Desk da Semeq pelo e-mail servicedesk@semeq.com. Espero ter ajudado!"]
+                for i in list_response:
+                    i = sub("[_]", f"{problem}", i)
+                    response.append(i)
+                    if "..." in i:
+                        df_solution = pd.read_excel('database\\troubleshooting.xlsx')
+                        solution = df_solution.loc[(df_solution['subject'] == subject) &
+                                (df_solution['device'] == device) &
+                                (df_solution['interface'] == interface) &
+                                (df_solution['model'] == model) &
+                                (df_solution['problem'] == problem),
+                                'solution'].iloc[0]
+                        response.append(solution)
+                # print('problem2: ',subject,device,interface,model,problem,response,dict_list_option)
+                return subject,device,interface,model,problem,response,dict_list_option
         else:
             response = []
             list_response = ["Entendi, você está com o seguinte problema: _","Aqui está uma possível solução...","Caso o problema não seja resolvido, por favor, abra um chamado para o Service Desk da Semeq pelo e-mail servicedesk@semeq.com. Espero ter ajudado!"]
             for i in list_response:
                 i = sub("[_]", f"{problem}", i)
                 response.append(i)
-                if "..." in i:
-                    df_solution = pd.read_excel('database\\troubleshooting.xlsx')
-                    solution = df_solution.loc[(df_solution['subject'] == subject) &
-                            (df_solution['device'] == device) &
-                            (df_solution['interface'] == interface) &
-                            (df_solution['model'] == model) &
-                            (df_solution['problem'] == problem),
-                            'solution'].iloc[0]
-                    response.append(solution)
-
+            dict_list_option = False
+            # print('problem3: ',subject,device,interface,model,problem,response,dict_list_option)
             return subject,device,interface,model,problem,response,dict_list_option

@@ -1,100 +1,18 @@
 [
     {
-        "pattern": "mte",
+        "pattern": "coletor esta com alerta de overload",
         "context": "solution",
         "response": [
-            "N\u00e3o tenho certeza se entendi corretamente. Voc\u00ea poderia confirmar se o problema que voc\u00ea est\u00e1 enfrentando \u00e9 sobre smq945?"
-        ],
-        "subject": "coleta periodica offline",
-        "device": "sistema online",
-        "interface": "mte",
-        "model": false,
-        "problem": false,
-        "opcoes": [
-            {
-                "opcao": "1",
-                "valor": "smq945"
-            }
-        ]
-    },
-    {
-        "pattern": "smq945",
-        "context": "question_response",
-        "response": [
-            "Desculpe, mas n\u00e3o consegui entender completamente. Voc\u00ea poderia me dizer qual dessas op\u00e7\u00f5es melhor descreve o seu problema?",
-            "1-Bateria baixa\u00ac2-N\u00e3o l\u00ea corrente",
-            " Por favor, digite o n\u00famero correspondente \u00e0 op\u00e7\u00e3o que melhor se aplica ao seu problema."
-        ],
-        "subject": "coleta periodica offline",
-        "device": "sistema online",
-        "interface": "mte",
-        "model": "smq945",
-        "problem": false,
-        "opcoes": [
-            {
-                "opcao": "1",
-                "valor": "bateria baixa"
-            },
-            {
-                "opcao": "2",
-                "valor": "n\u00e3o l\u00ea corrente"
-            }
-        ]
-    },
-    {
-        "pattern": false,
-        "context": "question_response",
-        "response": [
-            "Desculpe, mas n\u00e3o consegui entender completamente. Voc\u00ea poderia me dizer qual dessas op\u00e7\u00f5es melhor descreve o seu problema?",
-            "1-Smq945",
-            " Por favor, digite o n\u00famero correspondente \u00e0 op\u00e7\u00e3o que melhor se aplica ao seu problema."
-        ],
-        "subject": "coleta periodica offline",
-        "device": "sistema online",
-        "interface": "mte",
-        "model": "smq945",
-        "problem": false,
-        "opcoes": [
-            {
-                "opcao": "1",
-                "valor": "smq945"
-            }
-        ]
-    },
-    {
-        "pattern": false,
-        "context": "question_response",
-        "response": [
-            "Desculpe, mas n\u00e3o consegui entender completamente. Voc\u00ea poderia me dizer qual dessas op\u00e7\u00f5es melhor descreve o seu problema?",
-            "1-Smq945",
-            " Por favor, digite o n\u00famero correspondente \u00e0 op\u00e7\u00e3o que melhor se aplica ao seu problema."
-        ],
-        "subject": "coleta periodica offline",
-        "device": "sistema online",
-        "interface": "mte",
-        "model": "smq945",
-        "problem": false,
-        "opcoes": [
-            {
-                "opcao": "1",
-                "valor": "smq945"
-            }
-        ]
-    },
-    {
-        "pattern": "bateria baixa",
-        "context": "solution",
-        "response": [
-            "Entendi, voc\u00ea est\u00e1 com o seguinte problema: bateria baixa",
+            "Entendi, voc\u00ea est\u00e1 com o seguinte problema: alerta de overload",
             "Aqui est\u00e1 uma poss\u00edvel solu\u00e7\u00e3o...",
             "procedimentos...",
             "Caso o problema n\u00e3o seja resolvido, por favor, abra um chamado para o Service Desk da Semeq pelo e-mail servicedesk@semeq.com. Espero ter ajudado!"
         ],
         "subject": "coleta periodica offline",
         "device": "sistema online",
-        "interface": "mte",
-        "model": "smq945",
-        "problem": "bateria baixa",
+        "interface": "coletor",
+        "model": "smq",
+        "problem": "alerta de overload",
         "opcoes": false
     }
 ]
