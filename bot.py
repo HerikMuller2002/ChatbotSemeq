@@ -67,7 +67,6 @@ def chatbot_run(input_user):
         else:
             with open(('logs\\log.json'), 'r', encoding='utf-8') as f:
                 log = json.load(f)
-
             try:
                 verificacao = log[-1]['context']
                 if verificacao == "question_response" or verificacao == "solution":
@@ -77,7 +76,7 @@ def chatbot_run(input_user):
             except IndexError:
                 verificacao_input = False
 
-            if context == "question_response" and verificacao_input:
+            if context == "question_response" and verificacao_input or context == "solution" and verificacao_input:
                 df_question = pd.read_excel(f'database\\question.xlsx')
                 question = ' '.join(log[-1]['response'])
                 vetor = 0
@@ -88,7 +87,42 @@ def chatbot_run(input_user):
                         vetor = vetor_encontrado
                         context_question = i
                 if context_question in df_question.columns.tolist():
-                    input_user = get_response_question(input_user)
+                    with open(('logs\\log.json'), 'r', encoding='utf-8') as log_file:
+                        log = json.load(log_file)
+                    ultimo_dicionario = log[-1]
+                    if not get_response_question(input_user):
+                        # Percorrer o último dicionário de trás para frente
+                        for chave, valor in reversed(list(ultimo_dicionario.items())):
+                            if isinstance(valor, str):
+                                # Armazenar a última chave que tem valor string
+                                subcontext = chave
+                                value_subcontext = valor
+                                # Substituir o valor string por False
+                                ultimo_dicionario[chave] = False
+                                break
+                        input_user = False
+                    else:
+                        input_user = get_response_question(input_user)
+                    #     # Criar um novo dicionário com as chaves e valores necessários
+                    #     new_dict = {
+                    #         "subject": ultimo_dicionario["subject"],
+                    #         "device": ultimo_dicionario["device"],
+                    #         "interface": ultimo_dicionario["interface"],
+                    #         "model": ultimo_dicionario["model"],
+                    #         "problem": ultimo_dicionario["problem"]
+                    #     }
+                    #     # Percorrer o novo dicionário em busca de valores False
+                    #     for chave, valor in new_dict.items():
+                    #         if valor == False:
+                    #             # Substituir o valor False no último dicionário
+                    #             ultimo_dicionario[chave] = get_response_question(input_user)
+                    #     input_user = ultimo_dicionario['pattern']
+                    # # Salvar o último dicionário modificado de volta no arquivo JSON
+                    # with open(('logs\\log.json'), 'w', encoding='utf-8') as log_file:
+                    #     json.dump(list(log), log_file)
+
+                    # with open(('logs\\log.json'), 'r', encoding='utf-8') as log_file:
+                    #     log = json.load(log_file)
                     try:
                         subject = log[-1]["subject"]
                         device = log[-1]["device"]

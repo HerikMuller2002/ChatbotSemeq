@@ -1,37 +1,85 @@
 [
     {
-        "pattern": "mte",
+        "pattern": "estou com problema na coleta periodica offline",
         "context": "solution",
         "response": [
-            "N\u00e3o tenho certeza se entendi corretamente. Voc\u00ea poderia confirmar se o problema que voc\u00ea est\u00e1 enfrentando \u00e9 sobre smq945?"
+            "N\u00e3o tenho certeza se entendi corretamente. Voc\u00ea poderia confirmar se o problema que voc\u00ea est\u00e1 enfrentando \u00e9 sobre coleta periodica offline?"
         ],
         "subject": "coleta periodica offline",
-        "device": "sistema online",
-        "interface": "mte",
+        "device": false,
+        "interface": false,
         "model": false,
         "problem": false,
         "opcoes": [
             {
                 "opcao": "1",
-                "valor": "smq945"
+                "valor": "coleta periodica offline"
             }
         ]
     },
     {
-        "pattern": "mte",
-        "context": "solution",
+        "pattern": "coleta periodica offline",
+        "context": "question_response",
         "response": [
-            "N\u00e3o tenho certeza se entendi corretamente. Voc\u00ea poderia confirmar se o problema que voc\u00ea est\u00e1 enfrentando \u00e9 sobre smq945?"
+            "N\u00e3o tenho certeza se entendi corretamente. Voc\u00ea poderia confirmar se o problema que voc\u00ea est\u00e1 enfrentando \u00e9 sobre sistema online?"
         ],
         "subject": "coleta periodica offline",
-        "device": "sistema online",
-        "interface": "mte",
+        "device": false,
+        "interface": false,
         "model": false,
         "problem": false,
         "opcoes": [
             {
                 "opcao": "1",
-                "valor": "smq945"
+                "valor": "sistema online"
+            }
+        ]
+    },
+    {
+        "pattern": "sistema online",
+        "context": "question_response",
+        "response": [
+            "Desculpe, mas n\u00e3o consegui entender completamente. Voc\u00ea poderia me dizer qual dessas op\u00e7\u00f5es melhor descreve o seu problema?",
+            "1-Camera termogr\u00e1fica\u00ac2-Coletor\u00ac3-Mte",
+            " Por favor, digite o n\u00famero correspondente \u00e0 op\u00e7\u00e3o que melhor se aplica ao seu problema."
+        ],
+        "subject": "coleta periodica offline",
+        "device": "sistema online",
+        "interface": false,
+        "model": false,
+        "problem": false,
+        "opcoes": [
+            {
+                "opcao": "1",
+                "valor": "camera termogr\u00e1fica"
+            },
+            {
+                "opcao": "2",
+                "valor": "coletor"
+            },
+            {
+                "opcao": "3",
+                "valor": "mte"
+            }
+        ]
+    },
+    {
+        "pattern": false,
+        "context": "solution",
+        "response": [
+            "Desculpe, mas n\u00e3o consegui entender completamente. Voc\u00ea poderia me dizer qual dessas op\u00e7\u00f5es melhor descreve o seu problema?",
+            "1-Sistema online",
+            " Por favor, digite o n\u00famero correspondente \u00e0 op\u00e7\u00e3o que melhor se aplica ao seu problema."
+        ],
+        "subject": "coleta periodica offline",
+        "device": false,
+        "interface": false,
+        "model": false,
+        "problem": false,
+        "opcoes": [
+            {
+                "opcao": "1",
+                "valor": "sistema online"
             }
         ]
     }

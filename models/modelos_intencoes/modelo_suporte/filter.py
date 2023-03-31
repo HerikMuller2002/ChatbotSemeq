@@ -466,5 +466,4 @@ def get_solution(input_user,subject,device,interface,model,problem):
                             (df_solution['problem'] == problem),
                             'solution'].iloc[0]
                     response.append(solution)
-
             return subject,device,interface,model,problem,response,dict_list_option
