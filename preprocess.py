@@ -13,6 +13,15 @@ from spellchecker import SpellChecker
 download('wordnet')
 
 class Tratamento:
+    def preprocess_lemma(text):
+        nlp = load("pt_core_news_sm")
+        # encontrar radical das palavras (lematização)
+        documento = nlp(text)
+        text = []
+        for token in documento:
+            text.append(token.lemma_)
+        text = ' '.join([str(elemento) for elemento in text if not elemento.isdigit()])
+        return text
     # Função para pré-processar os textos para calculo de correlação
     def preprocess_model(text):
         words = []
@@ -29,20 +38,13 @@ class Tratamento:
                     pattern = word_tokenize(pattern)
                     words.extend(pattern)
                     # lematizamos as palavras ignorando os palavras da lista ignore_words
-                    words = [WordNetLemmatizer().lemmatize(w.lower())for w in words]
+                    words2 = []
+                    for w in words:
+                        words2.append(Tratamento.preprocess_lemma(w).lower())
                     # adiciona aos documentos para identificarmos a tag para a mesma
                     documents.append((pattern, intent['tag']))
-        return words,documents
+        return words2,documents
     
-    def preprocess_lemma(text):
-        nlp = load("pt_core_news_sm")
-        # encontrar radical das palavras (lematização)
-        documento = nlp(text)
-        text = []
-        for token in documento:
-            text.append(token.lemma_)
-        text = ' '.join([str(elemento) for elemento in text if not elemento.isdigit()])
-        return text
     
     def preprocess_input(text):
         text = text.lower().strip()
