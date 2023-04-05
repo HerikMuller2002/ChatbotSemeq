@@ -1,11 +1,20 @@
 {
     "intents": [
       {
-        "tag": "welcome",
-        "patterns": ["oi", "bom dia", "boa tarde", "boa noite", "good morning", "hi", "hello", "olá", "ola", "hey", "eai", "eae", "e ai", "e ae", "esta bem", "tudo bem", "salve", "olá!", "bem-vindo!", "seja bem-vindo!", "boa tarde!", "boa noite!", "oi, tudo bem?", "oi, como vai?", "oi, seja bem-vindo!", "olá, é um prazer te ver!", "oi, que bom que você veio!"],
-        "responses": ["Olá, em que posso te ajudar?","Olá, como posso ajudar?","Hey, como posso ajudar?"],
-        "context": [""]
+        "tag": "",
+        "patterns": [""],
+        "responses": [""]
       },
+      {
+        "tag": "",
+        "patterns": [""],
+        "responses": [""]
+      },
+      {
+        "tag": "",
+        "patterns": [""],
+        "responses": [""]
+      }]}
       {
         "tag": "welcome_problem",
         "patterns": ["pode me ajudar?","estou com problema","tenho um problema","me ajuda","estou com um problemão","tenho um problemão","estou com probleminha","tenho um probleminha","preciso de uma mão","me da uma mãozinha","preciso de uma ajudinha","problema","problemas","probleminha","problemão"],

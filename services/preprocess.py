@@ -1,11 +1,53 @@
-import pandas as pd
-import numpy as np
-
+from spellchecker import SpellChecker
+from spacy import load
 from re import sub
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
 from nltk import word_tokenize
 from nltk.util import ngrams
+from spacy.lang.pt.stop_words import STOP_WORDS
+from nltk.stem.snowball import SnowballStemmer
+
+nlp = load("pt_core_news_sm")
+
+def preprocess_correcao(text):
+    list_text = text.split()
+    spell = SpellChecker(language='pt')
+    # Criar uma nova lista com as correções ortográficas
+    correcoes = [spell.correction(palavra) for palavra in list_text]
+    correcoes = [c for c in correcoes if c is not None]
+    if len(correcoes) > 1:
+        # Juntar a lista corrigida em uma única string
+        text = ' '.join(correcoes)
+    else:
+        pass
+    return text
+
+def preprocess_lemma(text):
+    # encontrar radical das palavras (lematização)
+    doc = nlp(text)
+    lemmas = [token.lemma_ if token.pos_ not in ["PUNCT"] and token.text not in STOP_WORDS else token.text for token in doc]
+    return " ".join(lemmas)
+
+def preprocess_stem(text):
+    stemmer = SnowballStemmer("portuguese")
+    tokens = word_tokenize(text)
+    stems = [stemmer.stem(token) for token in tokens]
+    text = ' '.join([str(element) for element in stems])
+    return text
+
+def preprocess_model(df_patterns, df_intents):
+    words = []
+    documents = []
+    for group_name, group_df in df_patterns.groupby("intent_id"):
+        for index, row in group_df.iterrows():
+            pattern = row['pattern'].lower()
+            pattern = sub(r"[!#$%&'()*+,-./:;<=>?@[^_`{|}~]+", ' ', sub('[áàãâä]', 'a', sub('[éèêë]', 'e', sub('[íìîï]', 'i', sub('[óòõôö]', 'o', sub('[úùûü]', 'u', pattern))))))
+            pattern = sub(r'\s+', ' ',pattern)
+            pattern = word_tokenize(pattern)
+            words.extend(pattern)
+            words2 = [preprocess_lemma(w).lower() for w in words]
+            intent = df_intents.loc[df_intents['id'] == group_name, 'tag'].values[0]
+            documents.append((pattern, intent))
+    return words2, documents
 
 def preprocess_input(text):
     text = text.lower().strip()
@@ -15,25 +57,23 @@ def preprocess_input(text):
     text = sub(r'\s+', ' ',text)
     return text
 
-#########################################################
-
-def preprocess_list(a, b):
+def preprocess_list(list_text_db, list_text_db_copy):
     new_list = []
     new_copy_list = []
-    for i, text in enumerate(a):
+    for i, text in enumerate(list_text_db):
         text = preprocess_input(text)
         if ',' in text or '\\' in text or '/' in text:
             new_texts = text.split(',') + text.split('\\') + text.split('/')
             for new_text in new_texts:
                 new_list.append(new_text)
-                new_copy_list.append({"value": new_text, "line": b[i]["line"], "column": b[i]["column"]})
+                new_copy_list.append({"value": new_text, "line": list_text_db_copy[i]["line"], "column": list_text_db_copy[i]["column"]})
         else:
             new_texts = text.split()
             for new_text in new_texts:
                 new_list.append(new_text)
-                new_copy_list.append({"value": new_text, "line": b[i]["line"], "column": b[i]["column"]})
+                new_copy_list.append({"value": new_text, "line": list_text_db_copy[i]["line"], "column": list_text_db_copy[i]["column"]})
             new_list.append(text)
-            new_copy_list.append({"value": text, "line": b[i]["line"], "column": b[i]["column"]})
+            new_copy_list.append({"value": text, "line": list_text_db_copy[i]["line"], "column": list_text_db_copy[i]["column"]})
     return new_list, new_copy_list
 
 def preprocess_nrange(list_text_db, nrange=1):
@@ -44,74 +84,3 @@ def preprocess_nrange(list_text_db, nrange=1):
             tokens = [" ".join(ng) for ng in ngrams(tokens, nrange)]
         preprocessed_list.append(" ".join(tokens))
     return preprocessed_list
-
-# função para calcular tf e idf (similaridade entre um input com os dados do banco de dados)
-def tf_idf(user_input, dados, num_vetores=1, nrange=1):
-    # verifica se os dados passados como parâmetros na base de dados são um dataframe
-    if isinstance(dados, pd.DataFrame):
-        # converte os dados do dataframe em string
-        dataframe = dados.astype(str)
-        # transforma o dataframe em lista
-        list_text_db = dataframe.to_numpy().flatten().tolist()
-
-        # loop para criar uma lista "cópia" com dicionários, com os seus respectivos elementos e indices do dataframe
-        # para consulta!
-        list_text_db_copy = []
-        for i, row in dados.iterrows():
-            for col in row.index:
-                value = str(row[col])
-                list_text_db_copy.append({'value': value, 'line': i, 'column': col})
-
-    # verifica se os dados passados como parâmetros na base de dados são uma lista
-    elif isinstance(dados, list):
-        list_text_db = dados.copy()
-        # loop para criar uma lista "cópia" com dicionários, com os seus respectivos elementos e indices do dataframe
-        # para consulta!
-        list_text_db_copy = []
-        for i, value in enumerate(dados):
-            list_text_db_copy.append({'value': value, 'line': i})
-
-    # passa as listas criadas na função preprocess_list para que sejam splitadas, aumentando a quantidade de palavras nas listas
-    list_text_db,list_text_db_copy = preprocess_list(list_text_db,list_text_db_copy)
-
-    # loop para eliminar elementos duplicados nos mesmos indices
-    unicos = {}
-    for i in list_text_db_copy:
-        key = i['value'] + '-' + str(i['line'])
-        if key not in unicos:
-            unicos[key] = i
-        else:
-            id = list_text_db_copy.index(i)
-            list_text_db.pop(id)
-            list_text_db_copy.remove(i)
-
-    # pré-processando a lista original para "ngramas" passados pelo parâmetro "nrange" da função.
-    # ngramas define a quantidade de colunas na matriz que será calculada no tf e idf, matriz: MxN -> M linhas x N colunas => M é a quantidade de combinações possíveis com as palavras das frases, de acordo com ngramas; e N é ngramas
-    list_text_db = preprocess_nrange(list_text_db, nrange)
-    # adiciona o input do usuário como último elemento na matriz, para servir como parâmetro = 1 no cálculo
-    list_text_db.append(user_input)
-
-    # transforma a matriz em vetor e calculando a similaridade
-    tfidf = TfidfVectorizer()
-    palavras_vetorizadas = tfidf.fit_transform(list_text_db)
-    similaridade = cosine_similarity(palavras_vetorizadas[-1], palavras_vetorizadas)
-    vetor_similar = similaridade.flatten()
-
-    # determina os índices dos vetores na lista list_text_db
-    indices = np.argsort(similaridade, axis=1)
-    indices = np.flip(indices, axis=1)
-    indices = indices[:, 1:num_vetores+1]
-
-    # determina a lista de vetores encontrados
-    vetores = [vetor_similar[indices[0][i]] for i in range(num_vetores)]
-    # determina a lista dos indices dos vetores encotrados
-    indices_sentencas = [int(indices[0][i]) for i in range(num_vetores)]
-    
-    # loop para criar lista resultados com dicionários, com a quantidade de elementos definido no parâmetro da função
-    resultados = []
-    for i in range(num_vetores):
-        resultado = {"vetor": vetores[i], "indice": list_text_db_copy[indices[0][i]]['line'], "valor": list_text_db[indices_sentencas[i]]}
-        resultados.append(resultado)
-
-    # retorna a lista resultados com os dicionários dos vetores e indices encontrados
-    return resultados

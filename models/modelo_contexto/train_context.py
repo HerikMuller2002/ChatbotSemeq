@@ -29,6 +29,7 @@ classes = [i['tag'] for i in intents['intents']]
 
 words,documents = Tratamento.preprocess_model(intents)
 
+
 ################################################################################################################
 #--------------------------------------------------------------------------------------------------------------#
 ################################################################################################################
@@ -104,6 +105,7 @@ model.add(Dense(len(y[0]), activation='softmax'))
 # é medir o gradiente da função de custo não na posição local,
 # mas ligeiramente à frente na direção do momentum. 
 # A única diferença entre a otimização de Momentum é que o gradiente é medido em θ + βm em vez de em θ.
+
 sgd = SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
 model.compile(loss='categorical_crossentropy',optimizer=sgd, metrics=['accuracy'])
 
