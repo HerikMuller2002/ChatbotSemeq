@@ -37,8 +37,11 @@ def preprocess_stem(text):
 def preprocess_model(df_patterns, df_intents):
     words = []
     documents = []
+    count = 0
     for group_name, group_df in df_patterns.groupby("intent_id"):
         for index, row in group_df.iterrows():
+            count += 1
+            print("linha:",count,"de:",df_patterns.shape[0])
             pattern = row['pattern'].lower()
             pattern = sub(r"[!#$%&'()*+,-./:;<=>?@[^_`{|}~]+", ' ', sub('[áàãâä]', 'a', sub('[éèêë]', 'e', sub('[íìîï]', 'i', sub('[óòõôö]', 'o', sub('[úùûü]', 'u', pattern))))))
             pattern = sub(r'\s+', ' ',pattern)

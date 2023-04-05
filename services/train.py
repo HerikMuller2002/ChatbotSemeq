@@ -9,18 +9,7 @@ from keras.layers import Dense, Dropout
 from keras.optimizers import SGD
 
 
-####################################################################
-from database import read_db
-path_models = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "models"))
-path_db = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "database"))
-
-df_intents = read_db('intents')
-df_patterns = read_db('patterns')
-
-
-######################################################################
 def train_model(df_intents,df_patterns,path):
-
     classes = [j['tag'] for i,j in df_intents.iterrows()]
     words,documents = preprocess_model(df_patterns,df_intents)
 
