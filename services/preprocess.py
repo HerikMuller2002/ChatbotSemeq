@@ -5,21 +5,41 @@ from nltk import word_tokenize
 from nltk.util import ngrams
 from spacy.lang.pt.stop_words import STOP_WORDS
 from nltk.stem.snowball import SnowballStemmer
+from services.database import *
 
 nlp = load("pt_core_news_sm")
 
-def preprocess_correcao(text):
-    list_text = text.split()
-    spell = SpellChecker(language='pt')
-    # Criar uma nova lista com as correções ortográficas
-    correcoes = [spell.correction(palavra) for palavra in list_text]
-    correcoes = [c for c in correcoes if c is not None]
-    if len(correcoes) > 1:
-        # Juntar a lista corrigida em uma única string
-        text = ' '.join(correcoes)
-    else:
-        pass
+def preprocess_input(text):
+    text = sub(r"[!#$%&'()*+,-./:;<=>?@[^_`{|}~]+", ' ',text)
+    text = sub(r'\s+', ' ',text)
+    text = preprocess_correcao(text)
+    text = text.lower().strip()
+    # tirar pontuações, acentos e espaços extras
+    text = sub('[áàãâä]', 'a', sub('[éèêë]', 'e', sub('[íìîï]', 'i', sub('[óòõôö]', 'o', sub('[úùûü]', 'u', text)))))
+    # tirar espaços em branco
+    text = sub(r'\s+', ' ',text)
     return text
+
+
+def preprocess_correcao(text):
+    list_input = text.split()
+    list_text = []
+    spell = SpellChecker(language='pt')
+    df_patterns = set(read_db('patterns').drop(['id','intent_id'], axis=1).to_numpy().flatten().tolist())
+    df_problems = set(read_db('problems').drop(['id','problem','description'], axis=1).to_numpy().flatten().tolist())
+    for i in list_input:
+        if i not in STOP_WORDS and (i in df_problems or i in df_patterns):
+            list_text.append(i)
+        else:
+            # Cria uma nova lista com as correções ortográficas
+            correcao = spell.correction(i)
+            list_text.append(correcao)
+    try:
+        text = ' '.join(list_text)
+    except TypeError:
+        text = ' '.join(list_input)
+    return text
+
 
 def preprocess_lemma(text):
     # encontrar radical das palavras (lematização)
@@ -27,12 +47,14 @@ def preprocess_lemma(text):
     lemmas = [token.lemma_ if token.pos_ not in ["PUNCT"] and token.text not in STOP_WORDS else token.text for token in doc]
     return " ".join(lemmas)
 
+
 def preprocess_stem(text):
     stemmer = SnowballStemmer("portuguese")
     tokens = word_tokenize(text)
     stems = [stemmer.stem(token) for token in tokens]
     text = ' '.join([str(element) for element in stems])
     return text
+
 
 def preprocess_model(df_patterns, df_intents):
     words = []
@@ -52,13 +74,6 @@ def preprocess_model(df_patterns, df_intents):
             documents.append((pattern, intent))
     return words2, documents
 
-def preprocess_input(text):
-    text = text.lower().strip()
-    # tirar pontuações, acentos e espaços extras
-    text = sub('[áàãâä]', 'a', sub('[éèêë]', 'e', sub('[íìîï]', 'i', sub('[óòõôö]', 'o', sub('[úùûü]', 'u', text)))))
-    # tirar espaços em branco
-    text = sub(r'\s+', ' ',text)
-    return text
 
 def preprocess_list(list_text_db, list_text_db_copy):
     new_list = []
@@ -78,6 +93,7 @@ def preprocess_list(list_text_db, list_text_db_copy):
             new_list.append(text)
             new_copy_list.append({"value": text, "line": list_text_db_copy[i]["line"], "column": list_text_db_copy[i]["column"]})
     return new_list, new_copy_list
+
 
 def preprocess_nrange(list_text_db, nrange=1):
     preprocessed_list = []

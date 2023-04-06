@@ -2,7 +2,7 @@ import sys, os
 sys.path.append(os.path.abspath(os.path.join('..', 'Chatbot\\main')))
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS, cross_origin
-from bot import chatbot_run
+from main import chatbot_run
 
 app = Flask(__name__)
 # liberando acesso para origem especifica
