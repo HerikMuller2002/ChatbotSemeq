@@ -36,14 +36,13 @@ def preprocess_list(list_text):
             new_list.append(text)
     return new_list
 
+# preparar para receber parametros de nrange e lista de vetores
 def tf_idf(user_input, dados):
     if isinstance(dados, pd.DataFrame):
         dataframe = dados.astype(str)
         list_text_db = dataframe.to_numpy().flatten().tolist()
     elif isinstance(dados, list):
         list_text_db = dados.copy()
-    else:
-        raise ValueError("Os dados precisam ser uma lista ou um DataFrame.")
     list_text_db = preprocess_list(list_text_db)
     list_text_db.append(user_input)
     tfidf = TfidfVectorizer()

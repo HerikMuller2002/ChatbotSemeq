@@ -1,20 +1,40 @@
 import sqlite3
 import json
+import pandas as pd
 
-def criar_db():
-    # estabelece uma conexão com o banco de dados
-    conexao = sqlite3.connect('database.db')
-    # cria uma tabela chamada 'mensagens' com duas colunas: 'mensagem' e 'resposta'
-    cursor = conexao.cursor()
-    #cursor.execute('CREATE TABLE problemas (assunto, app_device, interface, modelo, problema, solucao)')
-    cursor.execute('CREATE TABLE solution (subject, device, interface, model, problem, solution)')
-    cursor.execute('CREATE TABLE intent_casual (intent, pattern, response)')
-    cursor.execute('CREATE TABLE intent_censored ()')
-    cursor.execute('CREATE TABLE intent_subject ()')
-    cursor.execute('CREATE TABLE intent_device ()')
-    cursor.execute('CREATE TABLE intent_interface ()')
-    cursor.execute('CREATE TABLE intent_model ()')
-    cursor.execute('CREATE TABLE intent_problem ()')
-    conexao.commit()
-    # fecha a conexão com o banco de dados
-    conexao.close()
+def add_json_to_db(json_data, db_file):
+    conn = sqlite3.connect(db_file)
+    c = conn.cursor()
+
+    for intent in json_data:
+        # Insere a tag na tabela intents
+        tag = intent['tag']
+        description = '' # Neste exemplo, não há descrição, mas poderia ser adicionada
+        c.execute("INSERT INTO intents (tag, description) VALUES (?, ?)", (tag, description))
+        intent_id = c.lastrowid
+
+        # Insere os padrões na tabela patterns
+        for pattern in intent['patterns']:
+            c.execute("INSERT INTO patterns (intent_id, pattern) VALUES (?, ?)", (intent_id, pattern))
+
+        # Insere as respostas na tabela responses
+        for response in intent['responses']:
+            c.execute("INSERT INTO responses (intent_id, response) VALUES (?, ?)", (intent_id, response))
+
+    conn.commit()
+    conn.close()
+
+  
+def add_df_to_db(df, db_file):
+    conn = sqlite3.connect(db_file)
+    c = conn.cursor()
+    for id,row in df.iterrows():
+        # Insere a tag na tabela intents
+        c.execute("INSERT INTO problems (subject, device, interface, model, problem, description) VALUES (?, ?, ?, ?, ?, ?)", (row['subject'], row['device'], row['interface'], row['model'], row['problem'], row['description']))
+    conn.commit()
+    conn.close()
+
+df = pd.read_excel('database\\troubleshooting.xlsx')
+df = df.drop('solution',axis=1)
+
+# add_df_to_db(df,'database\\chatbot.db')

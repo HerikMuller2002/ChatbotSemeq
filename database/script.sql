@@ -1,0 +1,36 @@
+CREATE TABLE intents (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  tag TEXT NOT NULL,
+  description TEXT NOT NULL
+);
+
+CREATE TABLE patterns (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  intent_id INTEGER NOT NULL,
+  pattern TEXT NOT NULL,
+  FOREIGN KEY (intent_id) REFERENCES intents(id)
+);
+
+CREATE TABLE responses (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  intent_id INTEGER NOT NULL,
+  response TEXT NOT NULL,
+  FOREIGN KEY (intent_id) REFERENCES intents(id)
+);
+
+CREATE TABLE problems (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  subject VARCHAR(255) NOT NULL,
+  device VARCHAR(255) NOT NULL,
+  interface VARCHAR(255) NOT NULL,
+  model VARCHAR(255) NOT NULL,
+  problem TEXT NOT NULL,
+  description TEXT NOT NULL
+);
+
+CREATE TABLE solutions (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  problem_id INTEGER NOT NULL,
+  solution TEXT NOT NULL,
+  FOREIGN KEY (problem_id) REFERENCES problems(id)
+);
