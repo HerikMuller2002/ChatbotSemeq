@@ -68,6 +68,13 @@ body {
     transition: all .3s ease;
 }
 
+.chat__demo-exemplos > .chat__demo-example > button:hover,  .chat__demo-exemplos > .chat__demo-example:hover {
+    background-color: #33486e;
+    opacity: 1;
+    box-shadow: 0 0 10px #33486e;
+    cursor: pointer;
+}
+
 .chat__demo-example {
     border-radius: .3rem;
     width: 100%;
@@ -260,12 +267,13 @@ body {
 }
 
 @media screen and (max-width: 768px) {
+    .chat {
+        height: 75vh;
+    }
     .chat__demo {
         display: flex;
         flex-direction: column;
     }
-
-    
 }
 
 @media screen and (min-width: 1920px) {

@@ -5,6 +5,13 @@ const url = 'http://127.0.0.1:5000/test'
 const chatInput = document.querySelector(".chat__input")
 const messageBtn = document.querySelector(".text__chat__button")
 const  message = document.querySelector(".text__chat")
+const exampleDiv = document.querySelector(".chat__demo-example")
+
+document.querySelectorAll(".chat__demo-example").forEach((item) => {
+    item.addEventListener("click", () => {
+        message.value = item.textContent.trim()
+    })
+})
 
 // adicionando o evento de click no botão de enviar
 messageBtn.addEventListener("click", addMessage)
