@@ -1,9 +1,0 @@
-{
-    "intents": [
-        {
-          "tag": "unsolved",
-          "patterns": ["unsolved","nenhuma","nenhuma das anteriores","nenhuma das opções","nenhum","está errado","opções erradas","errou as opções","voce errou","vc errou","errou","voce não me ajuda","voce não me ajudou","vc não ajudou","voce é fraco","voce não funciona direito","voce não funciona","voce não serve","não sei","sei lá","vou saber"],
-          "responses": ["Lamento, mas não consegui encontrar uma solução para o seu problema. Por favor, entre em contato com o Service Desk da Semeq pelo e-mail servicedesk@semeq.com para obter ajuda adicional. Obrigado pela sua compreensão!"]
-          }
-    ]
-  }

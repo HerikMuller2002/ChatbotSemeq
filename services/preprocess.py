@@ -1,3 +1,10 @@
+import os
+import sys
+# Obtenha o diretório pai do arquivo atual
+# parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(parent_dir)
+
 from spellchecker import SpellChecker
 from spacy import load
 from re import sub
@@ -6,6 +13,8 @@ from nltk.util import ngrams
 from spacy.lang.pt.stop_words import STOP_WORDS
 from nltk.stem.snowball import SnowballStemmer
 from services.database import *
+
+print(STOP_WORDS)
 
 nlp = load("pt_core_news_sm")
 
