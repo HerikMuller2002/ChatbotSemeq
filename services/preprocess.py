@@ -14,7 +14,9 @@ from spacy.lang.pt.stop_words import STOP_WORDS
 from nltk.stem.snowball import SnowballStemmer
 from services.database import *
 
-print(STOP_WORDS)
+from numba import jit
+
+
 
 nlp = load("pt_core_news_sm")
 
@@ -53,7 +55,7 @@ def preprocess_correcao(text):
 def preprocess_lemma(text):
     # encontrar radical das palavras (lematização)
     doc = nlp(text)
-    lemmas = [token.lemma_ if token.pos_ not in ["PUNCT"] and token.text not in STOP_WORDS else token.text for token in doc]
+    lemmas = [token.lemma_ if token.text not in STOP_WORDS else token.text for token in doc]
     return " ".join(lemmas)
 
 
@@ -84,24 +86,24 @@ def preprocess_model(df_patterns, df_intents):
     return words2, documents
 
 
-def preprocess_list(list_text_db, list_text_db_copy):
-    new_list = []
-    new_copy_list = []
-    for i, text in enumerate(list_text_db):
-        text = preprocess_input(text)
-        if ',' in text or '\\' in text or '/' in text:
-            new_texts = text.split(',') + text.split('\\') + text.split('/')
-            for new_text in new_texts:
-                new_list.append(new_text)
-                new_copy_list.append({"value": new_text, "line": list_text_db_copy[i]["line"], "column": list_text_db_copy[i]["column"]})
-        else:
-            new_texts = text.split()
-            for new_text in new_texts:
-                new_list.append(new_text)
-                new_copy_list.append({"value": new_text, "line": list_text_db_copy[i]["line"], "column": list_text_db_copy[i]["column"]})
-            new_list.append(text)
-            new_copy_list.append({"value": text, "line": list_text_db_copy[i]["line"], "column": list_text_db_copy[i]["column"]})
-    return new_list, new_copy_list
+# def preprocess_list(list_text_db, list_text_db_copy):
+#     new_list = []
+#     new_copy_list = []
+#     for i, text in enumerate(list_text_db):
+#         text = preprocess_input(text)
+#         if ',' in text or '\\' in text or '/' in text:
+#             new_texts = text.split(',') + text.split('\\') + text.split('/')
+#             for new_text in new_texts:
+#                 new_list.append(new_text)
+#                 new_copy_list.append({"value": new_text, "line": list_text_db_copy[i]["line"], "column": list_text_db_copy[i]["column"]})
+#         else:
+#             new_texts = text.split()
+#             for new_text in new_texts:
+#                 new_list.append(new_text)
+#                 new_copy_list.append({"value": new_text, "line": list_text_db_copy[i]["line"], "column": list_text_db_copy[i]["column"]})
+#             new_list.append(text)
+#             new_copy_list.append({"value": text, "line": list_text_db_copy[i]["line"], "column": list_text_db_copy[i]["column"]})
+#     return new_list, new_copy_list
 
 
 def preprocess_nrange(list_text_db, nrange=1):
@@ -112,3 +114,36 @@ def preprocess_nrange(list_text_db, nrange=1):
             tokens = [" ".join(ng) for ng in ngrams(tokens, nrange)]
         preprocessed_list.append(" ".join(tokens))
     return preprocessed_list
+
+
+
+
+
+def preprocess_list(list_text_db):
+    new_list = []
+    new_copy_list = []
+    for i, text in enumerate(list_text_db):
+        text = preprocess_input(text)
+        if ',' in text or '\\' in text or '/' in text or len(text) > 1:
+            new_texts = text.split(',') + text.split('\\') + text.split('/') + text.split()
+            for new_text in new_texts:
+                new_list.append(new_text)
+        else:
+            new_list.append(text)
+    return new_list
+
+valores_masculinos = ['primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'sétimo', 'oitavo', 'nono', 'décimo']
+valores_femininos = ['primeira', 'segunda', 'terceira', 'quarta', 'quinta', 'sexta', 'sétima', 'oitava', 'nona', 'décima']
+ordinais = valores_femininos + valores_masculinos
+numeros_escritos = ['um', 'dois', 'três', 'quatro', 'cinco', 'seis', 'sete', 'oito', 'nove', 'dez', 'onze', 'doze', 'treze', 'catorze', 'quinze', 'dezesseis', 'dezessete', 'dezoito', 'dezenove', 'vinte']
+
+df = pd.read_excel(f'{parent_dir}\\database\\troubleshooting.xlsx')
+dataframe = df.astype(str)
+# transforma o dataframe em lista
+list_text_db = dataframe.to_numpy().flatten().tolist()
+list_text_db1 = preprocess_list(list_text_db)
+print(list_text_db1)
+
+STOP_WORDS = [word for word in STOP_WORDS if not word.isdigit() and word not in ordinais and word not in numeros_escritos and word not in list_text_db]
+# print(STOP_WORDS)
+# print('sistema' in list_text_db)

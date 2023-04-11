@@ -1,0 +1,10 @@
+{
+    "intents": [
+        {
+            "tag": "anything_else",
+            "patterns": [],
+            "responses": ["Desculpa, não entendi, tente novamente!","Desculpe, não consegui entender sua pergunta. Poderia reformulá-la de outra maneira?","Sinto muito, mas não consegui entender o que você quis dizer. Você pode reformular?","Desculpe-me, mas não entendi qual é a sua solicitação. Você poderia reformulá-la, por favor?","Desculpe, não entendi a sua pergunta. Você poderia fornecer mais informações ou esclarecer o que você gostaria de saber?"],
+            "context": [""]
+          }
+    ]
+  }
