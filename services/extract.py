@@ -2,7 +2,7 @@ import os
 import pandas as pd
 import numpy as np
 
-from services.preprocess import preprocess_lemma
+from services.preproccess import preprocess_lemma
 from pickle import load
 from keras.models import load_model
 from random import choice

@@ -13,24 +13,9 @@ from nltk.util import ngrams
 from spacy.lang.pt.stop_words import STOP_WORDS
 from nltk.stem.snowball import SnowballStemmer
 from services.database import *
-
-from numba import jit
-
-
+import language_tool_python
 
 nlp = load("pt_core_news_sm")
-
-def preprocess_input(text):
-    text = sub(r"[!#$%&'()*+,-./:;<=>?@[^_`{|}~]+", ' ',text)
-    text = sub(r'\s+', ' ',text)
-    text = preprocess_correcao(text)
-    text = text.lower().strip()
-    # tirar pontuações, acentos e espaços extras
-    text = sub('[áàãâä]', 'a', sub('[éèêë]', 'e', sub('[íìîï]', 'i', sub('[óòõôö]', 'o', sub('[úùûü]', 'u', text)))))
-    # tirar espaços em branco
-    text = sub(r'\s+', ' ',text)
-    return text
-
 
 def preprocess_correcao(text):
     list_input = text.split()
@@ -51,6 +36,25 @@ def preprocess_correcao(text):
         text = ' '.join(list_input)
     return text
 
+def preprocess_semantic(frase):
+    tool = language_tool_python.LanguageTool('pt')
+    matches = tool.check(frase)
+    for i in matches:
+        frase = frase[:i.offset] + i.replacements[0] + frase[i.offset+i.errorLength:]
+    tool.close()
+    return frase
+
+def preprocess_input(text):
+    text = preprocess_correcao(text)
+    text = preprocess_semantic(text)
+    text = sub(r"[!#$%&'()*+,-./:;<=>?@[^_`{|}~]+", ' ',text)
+    text = sub(r'\s+', ' ',text)
+    text = text.lower().strip()
+    # tirar pontuações, acentos e espaços extras
+    text = sub('[áàãâä]', 'a', sub('[éèêë]', 'e', sub('[íìîï]', 'i', sub('[óòõôö]', 'o', sub('[úùûü]', 'u', text)))))
+    # tirar espaços em branco
+    text = sub(r'\s+', ' ',text)
+    return text
 
 def preprocess_lemma(text):
     # encontrar radical das palavras (lematização)
@@ -132,18 +136,18 @@ def preprocess_list(list_text_db):
             new_list.append(text)
     return new_list
 
-valores_masculinos = ['primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'sétimo', 'oitavo', 'nono', 'décimo']
-valores_femininos = ['primeira', 'segunda', 'terceira', 'quarta', 'quinta', 'sexta', 'sétima', 'oitava', 'nona', 'décima']
-ordinais = valores_femininos + valores_masculinos
-numeros_escritos = ['um', 'dois', 'três', 'quatro', 'cinco', 'seis', 'sete', 'oito', 'nove', 'dez', 'onze', 'doze', 'treze', 'catorze', 'quinze', 'dezesseis', 'dezessete', 'dezoito', 'dezenove', 'vinte']
+# valores_masculinos = ['primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'sétimo', 'oitavo', 'nono', 'décimo']
+# valores_femininos = ['primeira', 'segunda', 'terceira', 'quarta', 'quinta', 'sexta', 'sétima', 'oitava', 'nona', 'décima']
+# ordinais = valores_femininos + valores_masculinos
+# numeros_escritos = ['um', 'dois', 'três', 'quatro', 'cinco', 'seis', 'sete', 'oito', 'nove', 'dez', 'onze', 'doze', 'treze', 'catorze', 'quinze', 'dezesseis', 'dezessete', 'dezoito', 'dezenove', 'vinte']
 
-df = pd.read_excel(f'{parent_dir}\\database\\troubleshooting.xlsx')
-dataframe = df.astype(str)
-# transforma o dataframe em lista
-list_text_db = dataframe.to_numpy().flatten().tolist()
-list_text_db1 = preprocess_list(list_text_db)
-print(list_text_db1)
+# df = pd.read_excel(f'{parent_dir}\\database\\troubleshooting.xlsx')
+# dataframe = df.astype(str)
+# # transforma o dataframe em lista
+# list_text_db = dataframe.to_numpy().flatten().tolist()
+# list_text_db1 = preprocess_list(list_text_db)
+# print(list_text_db1)
 
-STOP_WORDS = [word for word in STOP_WORDS if not word.isdigit() and word not in ordinais and word not in numeros_escritos and word not in list_text_db]
-# print(STOP_WORDS)
-# print('sistema' in list_text_db)
+# STOP_WORDS = [word for word in STOP_WORDS if not word.isdigit() and word not in ordinais and word not in numeros_escritos and word not in list_text_db]
+# # print(STOP_WORDS)
+# # print('sistema' in list_text_db)

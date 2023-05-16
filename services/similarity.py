@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-from services.preprocess import preprocess_list,preprocess_nrange
+from preproccess import preprocess_list,preprocess_nrange
 
 # função para calcular tf e idf (similaridade entre um input com os dados do banco de dados)
 def tf_idf(user_input, dados, num_vetores=1, nrange=1):
@@ -18,7 +18,6 @@ def tf_idf(user_input, dados, num_vetores=1, nrange=1):
         a = 0
         for i, row in dados.iterrows():
             a += 1
-            print(a)
             for col in row.index:
                 value = str(row[col])
                 list_text_db_copy.append({'value': value, 'line': i, 'column': col})
@@ -29,14 +28,12 @@ def tf_idf(user_input, dados, num_vetores=1, nrange=1):
         # para consulta!
         list_text_db_copy = []
         for i, value in enumerate(dados):
-            print(3)
             list_text_db_copy.append({'value': value, 'line': i})
     # passa as listas criadas na função preprocess_list para que sejam splitadas, aumentando a quantidade de palavras nas listas
     list_text_db,list_text_db_copy = preprocess_list(list_text_db,list_text_db_copy)
     # loop para eliminar elementos duplicados nos mesmos indices
     unicos = {}
     for i in list_text_db_copy:
-        print(4)
         key = i['value'] + '-' + str(i['line'])
         if key not in unicos:
             unicos[key] = i
@@ -65,7 +62,6 @@ def tf_idf(user_input, dados, num_vetores=1, nrange=1):
     # loop para criar lista resultados com dicionários, com a quantidade de elementos definido no parâmetro da função
     resultados = []
     for i in range(num_vetores):
-        print(5)
         resultado = {"vetor": vetores[i], "indice": list_text_db_copy[indices[0][i]]['line'], "valor": list_text_db[indices_sentencas[i]]}
         resultados.append(resultado)
     # retorna a lista resultados com os dicionários dos vetores e indices encontrados

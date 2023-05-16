@@ -2,7 +2,7 @@ import pickle
 import random
 import numpy as np
 import os
-from services.preprocess import preprocess_model,preprocess_lemma
+from services.preproccess import preprocess_model,preprocess_lemma
 from keras.models import Sequential
 from keras.layers import Dense, Dropout
 from keras.optimizers import SGD
