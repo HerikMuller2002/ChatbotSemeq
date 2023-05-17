@@ -1,0 +1,191 @@
+coletor, funciona, inicializa, acende, liga
+Coletor, travado, emperrado, funciona, liga
+Alerta, ruído, ausência, sinal, interrupção, barulho, falha
+Alerta, overload, sobrecarga, excesso, carga, peso, limite
+Alerta, underload, carga, baixa, reduzida, menor
+Falha, teclado, membrana, funciona, responde
+Problema, conexão, internet, wifi, fio, rede, wireless
+Problema, conexão, internet, usb, cabo, fio, conectividade
+salva, medições, medidas, dados, gravação, registro, armazenamento
+coletor, funciona, inicializa, acende, liga
+Coletor, travado, emperrado, funciona, liga
+Alerta, ruído, ausência, sinal, interrupção, barulho, falha
+Alerta, overload, sobrecarga, excesso, carga, peso, limite
+Alerta, underload, carga, baixa, reduzida, menor
+Falha, teclado, membrana, funciona, responde
+Problema, conexão, internet, wifi, fio, rede, wireless
+Problema, conexão, internet, usb, cabo, fio, conectividade
+salva, medições, medidas, dados, gravação, registro, armazenamento
+coletor, funciona, inicializa, acende, liga
+salva, medições, medidas, dados, gravação, registro, armazenamento
+Coletor, travado, emperrado, funciona, liga
+Alerta, ruído, ausência, sinal, interrupção, barulho, falha
+Falha, teclado, membrana, funciona, responde
+Problema, conexão, internet, wifi, fio, rede, wireless
+Problema, conexão, internet, usb, cabo, fio, conectividade
+Coletor, travado, emperrado, funciona, liga
+Alerta, ruído, ausência, sinal, interrupção, barulho, falha
+Falha, teclado, membrana, funciona, responde
+Problema, conexão, internet, wifi, fio, rede, wireless
+salva, medições, medidas, dados, gravação, registro, armazenamento
+coletor, funciona, inicializa, acende, liga
+Equipamento, funciona, inicializa, acende, liga
+Imagem, embaçada, nítida, focada, nítidez
+Imagem, termográfica, termograma, preto, leitura, apagado, vídeo, escuro, escura
+Termograma, salvo, armazenamento, Dados, termográficos, armazenados, salva
+Bateria, carrega, carregamento, fonte, energia
+câmera, responde, grava, corretamente, funciona, termográfica, pega, pegar, parou
+Imagem, câmera, desfocada, Vídeos, qualidade, nítidos, em baçada, embaçado, lavados, lavado
+conexão, USB, câmera, Falha, conexão, comunica, computador, conecta, conectar
+Bateria, câmera, dura,  segura, carga
+Equipamento, funciona, inicializa, acende, liga
+Imagem, embaçada, nítida, focada, foco, lavado
+Imagem, termográfica, preto, Termograma, imagem, leitura, apagado, escuro
+Termograma, salvo, armazenamento, Dados, termográficos, armazenados
+Bateria, carrega, carregamento, fonte, energia
+câmera, responde, grava, corretamente
+imagem, câmera, desfocada,desfoco, Vídeos, qualidade, nítidos, lavado
+conexão, USB, câmera, comunica, computador, conecta
+Bateria, câmera, dura, segura, carga
+Pouca, carga, bateria, descarregando, fraca, descarrega
+leitura, corrente, Falha, lida, lê, conversa
+120, link, down, conexão, interrompida, rede
+120, perda, pacote, lentidão, velocidade, baixa, conexão, lenta
+120, link, down, conexão, interrompida, rede
+120, perda, pacote, lentidão, velocidade, baixa, conexão, lenta
+120, link, down, conexão, interrompida, rede
+120, perda, pacote, lentidão, velocidade, baixa, conexão, lenta
+comunicação, conexão, sinal, resposta
+comunicação, conexão, sinal, resposta
+comunicação, conexão, sinal, resposta
+comunicação, conexão, sinal, resposta
+comunicação, conexão, sinal, resposta
+comunicação, conexão, sinal, resposta
+comunicação, conexão, sinal, resposta
+comunicação, conexão, sinal, resposta
+comunicação, conexão, sinal, resposta
+comunicação, conexão, sinal, resposta
+rdp, integração, erro, integrado
+rdp, baixa, mysemeq, integração, erro, integrada
+ordem, serviço, aplicação, gerou, erro
+ordem, serviço, aplicação, gerou, erro
+dados, integrados, informações,integração
+http, 502, bad, gateway, erro, rede
+http, 408, timeout, erro, rede
+api, indisponível, erro, rede
+api, endpoint, inacessível, erro, rede
+api, resposta, erro
+lentidão, demora, travamento, lento
+página, carrega, erro
+gráfico, pizza, carrega, erro
+priorização, carrega, erro
+http, 502, bad, gateway, erro, rede
+http, 408, timeout, erro, rede
+api, indisponível, erro, rede
+api, endpoint, inacessível, erro, rede
+api, resposta, erro
+lentidão, demora, travamento, lento
+página, carrega, erro
+gráfico, pizza, carrega, erro
+priorização, carrega, erro
+interface, inacessível, erro, rede
+interface, inacessível, erro, rede
+sistema, lento, demora, travamento
+login, app, falha, erro
+login, app, falha, erro
+login, falha, erro
+dados, integrados, informações,integração
+erro, dados, desatualizados
+erro, login, acesso, usuário, acesso
+lentidão, portal, carregando
+erro, portal, carregamento
+erro, árvore, carregamento
+lentidão, portal, carregando
+erro, portal, carregamento
+erro, árvore, carregamento
+lentidão, portal, carregando
+erro, portal, carregamento
+erro, árvore, carregamento
+erro, tendência, análise
+rdp, integração, erro, integrado
+rdp, baixa, mysemeq, integração, erro, integrada
+ordem, serviço, aplicação, gerou, erro
+ordem, serviço, aplicação, gerou, erro
+dados, integrados, informações,integração
+http, 502, bad, gateway, erro, rede
+http, 408, timeout, erro, rede
+api, indisponível, erro, rede
+api, endpoint, inacessível, erro, rede
+api, resposta, erro
+lentidão, demora, travamento, lento
+página, carrega, erro
+gráfico, pizza, carrega, erro
+priorização, carrega, erro
+http, 502, bad, gateway, erro, rede
+http, 408, timeout, erro, rede
+api, indisponível, erro, rede
+api, endpoint, inacessível, erro, rede
+api, resposta, erro
+lentidão, demora, travamento, lento
+página, carrega, erro
+gráfico, pizza, carrega, erro
+priorização, carrega, erro
+interface, inacessível, erro, rede
+interface, inacessível, erro, rede
+sistema, lento, demora, travamento
+login, app, falha, erro
+login, app, falha, erro
+login, falha, erro
+dados, integrados, informações,integração
+erro, dados, desatualizados
+erro, login, acesso, usuário, acesso
+lentidão, portal, carregando
+erro, portal, carregamento
+erro, árvore, carregamento
+lentidão, portal, carregando
+erro, portal, carregamento
+erro, árvore, carregamento
+lentidão, portal, carregando
+erro, portal, carregamento
+erro, árvore, carregamento
+erro, tendência, análise
+http, 502, bad, gateway
+http, 408, timeout
+api, indisponível
+api, endpoint, acessível
+api, retorna, dados, mensagem
+lentidão, lento, travando
+página, carrega
+gráfico, pizza, carrega
+priorização, carrega
+http, 502, bad, gateway
+http, 408, timeout
+api, indisponível
+api, endpoint, inacessível
+api, resposta
+lentidão, baixo, desempenho
+página, carrega
+gráfico, pizza, carrega
+priorização, carrega
+http, 502, bad, gateway
+http, 408, timeout
+api, indisponível
+api, endpoint, inacessível
+api, resposta
+lentidão, baixo, desempenho
+página, carrega
+gráfico, pizza, carrega
+priorização, carrega
+sensor, vínculo, aplicado
+gateway, interface, entra
+Internet, conexão, cliente
+Internet, conexão, cliente
+Comunicação, sensor
+GW, gateway, online, data, hora
+Gateway, interface, conexão
+GW, gateway, interface, conexão
+Internet, conexão, cliente
+Internet, conexão, cliente
+Comunicação, sensor
+GW, gateway, online, data, hora
+Gateway, interface, conexão

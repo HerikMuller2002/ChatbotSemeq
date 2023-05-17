@@ -22,14 +22,14 @@ def bag_of_words(writing, words):
     return(np.array(bag))
 
 # Faz a previsao do pacote de palavras, usa como limite de erro 0.25 para evitar overfitting, e classifica esses resultados por força da probabilidade.
-def class_prediction(input_user, model_path, words_path, classes_path,filter):
+def class_prediction(input_user, model_path, words_path, classes_path):
     model = load_model(model_path)
     words = load(open(words_path, 'rb'))
     classes = load(open(classes_path, 'rb'))
     # filtra as previsões abaixo de um limite 0.25
     prevision = bag_of_words(input_user, words)
     response_prediction = model.predict(np.array([prevision]))[0]
-    results = [[index, response] for index, response in enumerate(response_prediction) if response > filter]
+    results = [[index, response] for index, response in enumerate(response_prediction)]
     # verifica nas previsões se não há 1 na lista, se não há envia a resposta padrão (anything_else) ou se não corresponde a margem de erro
     if "1" not in str(prevision) or len(results) == 0 :
         results = [[0, response_prediction[0]]]

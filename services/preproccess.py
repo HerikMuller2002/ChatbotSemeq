@@ -8,14 +8,13 @@ sys.path.append(parent_dir)
 from spellchecker import SpellChecker
 from spacy import load
 from re import sub
-from nltk import word_tokenize
+from nltk import word_tokenize, pos_tag
 from nltk.util import ngrams
 from spacy.lang.pt.stop_words import STOP_WORDS
 from nltk.stem.snowball import SnowballStemmer
+from nltk.stem import WordNetLemmatizer
 from services.database import *
 import language_tool_python
-
-nlp = load("pt_core_news_sm")
 
 def preprocess_correcao(text):
     list_input = text.split()
@@ -36,6 +35,7 @@ def preprocess_correcao(text):
         text = ' '.join(list_input)
     return text
 
+
 def preprocess_semantic(frase):
     tool = language_tool_python.LanguageTool('pt')
     matches = tool.check(frase)
@@ -43,24 +43,6 @@ def preprocess_semantic(frase):
         frase = frase[:i.offset] + i.replacements[0] + frase[i.offset+i.errorLength:]
     tool.close()
     return frase
-
-def preprocess_input(text):
-    text = preprocess_correcao(text)
-    text = preprocess_semantic(text)
-    text = sub(r"[!#$%&'()*+,-./:;<=>?@[^_`{|}~]+", ' ',text)
-    text = sub(r'\s+', ' ',text)
-    text = text.lower().strip()
-    # tirar pontuações, acentos e espaços extras
-    text = sub('[áàãâä]', 'a', sub('[éèêë]', 'e', sub('[íìîï]', 'i', sub('[óòõôö]', 'o', sub('[úùûü]', 'u', text)))))
-    # tirar espaços em branco
-    text = sub(r'\s+', ' ',text)
-    return text
-
-def preprocess_lemma(text):
-    # encontrar radical das palavras (lematização)
-    doc = nlp(text)
-    lemmas = [token.lemma_ if token.text not in STOP_WORDS else token.text for token in doc]
-    return " ".join(lemmas)
 
 
 def preprocess_stem(text):
@@ -70,6 +52,29 @@ def preprocess_stem(text):
     text = ' '.join([str(element) for element in stems])
     return text
 
+
+
+def preprocess_input(text):
+    text = preprocess_correcao(text)
+    text = preprocess_semantic(text)
+    text = sub(r"[!#$%&'()*+,-./:;<=>?@[^_`{|}~]+", ' ',text)
+    text = preprocess_stem(text)
+    text = text.lower().strip()
+    # tirar pontuações, acentos e espaços extras
+    text = sub('[áàãâä]', 'a', sub('[éèêë]', 'e', sub('[íìîï]', 'i', sub('[óòõôö]', 'o', sub('[úùûü]', 'u', text)))))
+    # tirar espaços em branco
+    text = sub(r'\s+', ' ',text)
+    return text
+
+
+
+
+def preprocess_lemma(text):
+    lemmatizer = WordNetLemmatizer()
+    tokens = word_tokenize(text)
+    lemmas = [lemmatizer.lemmatize(token) for token in tokens]
+    text = ' '.join([str(element) for element in lemmas])
+    return text
 
 def preprocess_model(df_patterns, df_intents):
     words = []
@@ -119,10 +124,6 @@ def preprocess_nrange(list_text_db, nrange=1):
         preprocessed_list.append(" ".join(tokens))
     return preprocessed_list
 
-
-
-
-
 def preprocess_list(list_text_db):
     new_list = []
     new_copy_list = []
@@ -135,19 +136,3 @@ def preprocess_list(list_text_db):
         else:
             new_list.append(text)
     return new_list
-
-# valores_masculinos = ['primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'sétimo', 'oitavo', 'nono', 'décimo']
-# valores_femininos = ['primeira', 'segunda', 'terceira', 'quarta', 'quinta', 'sexta', 'sétima', 'oitava', 'nona', 'décima']
-# ordinais = valores_femininos + valores_masculinos
-# numeros_escritos = ['um', 'dois', 'três', 'quatro', 'cinco', 'seis', 'sete', 'oito', 'nove', 'dez', 'onze', 'doze', 'treze', 'catorze', 'quinze', 'dezesseis', 'dezessete', 'dezoito', 'dezenove', 'vinte']
-
-# df = pd.read_excel(f'{parent_dir}\\database\\troubleshooting.xlsx')
-# dataframe = df.astype(str)
-# # transforma o dataframe em lista
-# list_text_db = dataframe.to_numpy().flatten().tolist()
-# list_text_db1 = preprocess_list(list_text_db)
-# print(list_text_db1)
-
-# STOP_WORDS = [word for word in STOP_WORDS if not word.isdigit() and word not in ordinais and word not in numeros_escritos and word not in list_text_db]
-# # print(STOP_WORDS)
-# # print('sistema' in list_text_db)
