@@ -1,5 +1,5 @@
 //obtendo a url do servidor
-const url = 'http://127.0.0.1:5000/test'
+const url = 'http://10.0.2.129:5000/test'
 
 //selecionando os elementos do DOM
 const chatInput = document.querySelector(".chat__input")

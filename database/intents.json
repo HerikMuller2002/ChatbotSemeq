@@ -14,7 +14,7 @@
         "tag": "",
         "patterns": [""],
         "responses": [""]
-      }]}
+      },
       {
         "tag": "welcome_problem",
         "patterns": ["pode me ajudar?","estou com problema","tenho um problema","me ajuda","estou com um problemão","tenho um problemão","estou com probleminha","tenho um probleminha","preciso de uma mão","me da uma mãozinha","preciso de uma ajudinha","problema","problemas","probleminha","problemão"],
